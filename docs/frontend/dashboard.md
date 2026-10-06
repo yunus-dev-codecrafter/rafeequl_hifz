@@ -1,6 +1,6 @@
 # Frontend — Main Dashboard
 
-Status: implemented (Prompt 15). The signed-in landing screen of Rafeequl Hifz: app identity, display controls, today's productivity, quick task management and shortcuts to the Quran activities.
+Status: implemented (Prompt 15; memorization write actions added in the PR-01 remediation, 2026-10-06). The signed-in landing screen of Rafeequl Hifz: app identity, display controls, today's productivity, quick task management and shortcuts to the Quran activities.
 
 ## Serving
 
@@ -10,16 +10,17 @@ Served by the SPA shell (`GET /` → `public/shell.html`, `ShellController`). Ha
 
 | File | Responsibility |
 | --- | --- |
-| `public/shell.html` | `view-dashboard`, `item-task`, `sheet-task-create`, `sheet-settings`, `view-soon` templates; SVG data-URI favicon; header brand links home. |
+| `public/shell.html` | `view-dashboard` (incl. the نطاق الحفظ action row), `item-task`, `sheet-task-create`, `sheet-establish`, `sheet-mark`, `sheet-correct`, `sheet-settings`, `view-soon` templates; SVG data-URI favicon; header brand links home. |
 | `public/css/pages/dashboard.css` | Hero, control row, summary stats, task groups/items, activity grid, progress-analytics section (Prompt 22), settings sheet, placeholder screen. |
 | `public/css/tokens.css` | (+) `:root[data-theme='light'|'dark']` manual overrides on top of the system `prefers-color-scheme` default (auto = no override). |
 | `public/js/core/prefs.js` | Persisted preferences (`localStorage`): theme cycle `auto → light → dark`, screen wake lock (Wake Lock API + visibility re-acquire), sound toggle; `initPrefs()` at boot. |
-| `public/js/features/dashboard/dashboard-page.js` | Render orchestration: date, summary (server math only), task groups, activity cards, progress-analytics section (`renderAnalytics`/`renderRecent`, Prompt 22), error/retry, motivational line. |
+| `public/js/features/dashboard/dashboard-page.js` | Render orchestration: date, summary (server math only), task groups, activity cards, memorization action row (`wireMemActions`/`showMemActions`), progress-analytics section (`renderAnalytics`/`renderRecent`, Prompt 22), error/retry, motivational line. |
+| `public/js/features/ribat/memorize-sheet.js` | The three memorization write sheets opened from the نطاق الحفظ card: establish / mark memorized / correct boundary (PR-01). |
 | `public/js/features/dashboard/controls.js` | Control row wiring only (settings sheet moved to `features/settings/settings-sheet.js`, Prompt 16). |
 | `public/js/features/tasks/{tasks-api,task-list,task-create}.js` | Task endpoints, group rendering + quick actions, create sheet (split out of the dashboard, Prompt 16). |
 | `public/js/features/progress/progress-api.js` | `GET /progress/summary` wrapper — the dashboard's analytics snapshot (Prompt 22). |
-| `public/js/pages/soon-page.js` | `view-soon` placeholder for `#/rabt` and `#/flip-cards` (reserved until those screens ship). |
-| `public/js/core/routes.js` | Route table incl. `/`, `/rabt`, `/flip-cards` (Prompt 16). |
+| `public/js/pages/soon-page.js` | `view-soon` placeholder for `#/rabt` (reserved until that screen ships; `#/flip-cards` now renders its own screen). |
+| `public/js/core/routes.js` | Route table incl. `/`, `/rabt` (placeholder), `/flip-cards` (dynamic chunk) (Prompts 16/26 + PR-01). |
 | `public/js/core/app.js` | Boot: preferences, header subscription, logout, route registration, auth fetch, router start (Prompt 16). |
 
 ## Data flow
@@ -29,7 +30,10 @@ GET /tasks                → summary {total, active, completed, completion_perc
 GET /task-types           → create-sheet vocabulary (fetched lazily on open)
 POST /tasks               → create (201) → reload the day
 PUT /tasks/{id}/status    → start / complete / skip / revert → reload the day
-GET /memorization/state   → progress card (percent + pages)
+GET /memorization/state   → progress card (percent + pages) + the action row's prefill values (next page, boundary)
+POST /memorization/state  → establish sheet (201) → reload; 422 `established` if a range already exists
+POST /memorization/history → mark sheet (201) → reload (boundary may advance; paused plans are reported)
+PUT /memorization/state   → correct sheet (confirm required) → reload (boundary history appends)
 GET /memorization/rabt    → rabt activity card (page range) — 404 before the range exists
 GET /flip-cards/queue     → flip-cards activity card (queue count)
 GET /progress/summary     → التقدم والمتابعة section: memorization, consistency, flip/task counts, recent activity (Prompt 22)
@@ -56,7 +60,7 @@ GET /progress/summary     → التقدم والمتابعة section: memorizat
 
 ## Server endpoints used
 
-`GET /tasks`, `POST /tasks`, `PUT /tasks/{id}/status`, `GET /task-types`, `GET /memorization/state`, `GET /memorization/rabt`, `GET /flip-cards/queue`, `GET /progress/summary`, `POST /auth/logout` (via settings sheet).
+`GET /tasks`, `POST /tasks`, `PUT /tasks/{id}/status`, `GET /task-types`, `GET /memorization/state`, `POST /memorization/state`, `POST /memorization/history`, `PUT /memorization/state`, `GET /memorization/rabt`, `GET /flip-cards/queue`, `GET /progress/summary`, `POST /auth/logout` (via settings sheet).
 
 ## Verification checklist (manual, browser)
 
@@ -65,9 +69,9 @@ GET /progress/summary     → التقدم والمتابعة section: memorizat
 3. Summary numbers match the API (`GET /tasks`); percent text and progress bar agree; empty day shows a "start" message with 0/0/0 and 0٪.
 4. `مهمة جديدة` sheet: type list from `/task-types`, duration prefills the type default, general type reveals the required title, 422 field errors render under inputs, created task appears in the right group.
 5. Quick actions: pending → `ابدأ` moves to active; `إنهاء` stamps completed (summary + % update after each action); `تجاهل` moves to the pending group with the `متجاهَل` badge; `استئناف` reverts. Double-taps are ignored while busy.
-6. Activity cards: مراجعة → `#/revision`; ربط shows the server page range (or the "not established" text); بطاقات الأخطاء shows the server queue count; نطاق الحفظ shows server percent/pages with the bar.
+6. Activity cards: مراجعة → `#/revision`; ربط shows the server page range (or the "not established" text); بطاقات الأخطاء shows the server queue count; نطاق الحفظ shows server percent/pages with the bar. Its action row: unestablished → `إنشاء نطاق الحفظ` sheet (reversed range shows the 422 under the field); established → `تسجيل محفوظ` (start pre-fills the server's next page) and `تصحيح الحد` (boundary pre-fills; confirm checkbox required) — each success reloads the dashboard; a boundary shrink toasts that plans were paused.
 7. Controls: awake persists across reloads (supported browsers only); sound persists; theme cycles auto/light/dark and survives reload (dark forced even when the OS is light); settings sheet toggles mirror the control row; logout returns to `#/login` and hides the header.
-8. `#/rabt` and `#/flip-cards` render the placeholder with a working "back to dashboard" link; `#/revision` still works.
+8. `#/rabt` renders the placeholder with a working "back to dashboard" link; `#/flip-cards` renders the flip-cards screen (see its section in `docs/reviews/production-readiness.md` §3 PR-01); `#/revision` still works.
 9. 401 anywhere (expired session) → redirected to `#/login`; dashboard load failure shows the retry card.
 10. Narrow viewport (≤360px): 4 controls and 2 stat columns stay tappable; no horizontal scroll; keyboard focus is visible on controls, cards and task buttons.
 11. `التقدم والمتابعة`: numbers match `GET /progress/summary` (no client-side math); unestablished memorization shows `—`; recent activity lists newest first with Arabic labels and `ar-u-nu-latn` timestamps; the section never shows scores, streaks or comparisons.

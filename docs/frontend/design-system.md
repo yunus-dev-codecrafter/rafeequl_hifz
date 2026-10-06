@@ -4,7 +4,7 @@ Status: implemented (Prompt 17). Mobile-first, responsive, RTL/LTR-safe, dark-mo
 
 ## Load order
 
-`shell.html` links, top to bottom: `tokens.css` → `base.css` → `components/*` (buttons, navigation, forms, card, task-list, quran-cards, states, alerts, modal, progress-bar, toast, bottom-sheet) → `pages/*` (login, revision, dashboard). Page files may only override what is genuinely page-specific.
+`shell.html` links, top to bottom: `tokens.css` → `base.css` → `components/*` (buttons, navigation, forms, card, flip-cards, task-list, quran-cards, states, alerts, modal, progress-bar, toast, bottom-sheet) → `pages/*` (login, revision, dashboard). Page files may only override what is genuinely page-specific.
 
 ## Tokens (root stylesheet)
 
@@ -27,8 +27,9 @@ Status: implemented (Prompt 17). Mobile-first, responsive, RTL/LTR-safe, dark-mo
 | --- | --- | --- |
 | `components/buttons.css` | `.btn`, `--primary/--success/--danger/--ghost`, `--block/--wide/--sm` | Base height = `--touch-target`. |
 | `components/navigation.css` | `.app-header`, `__inner/__brand/__nav/__link` | Sticky header. |
-| `components/forms.css` | `.form`, `__field/__label/__input/__error/__hint` | Inputs `aria-invalid="true"` turn danger. |
+| `components/forms.css` | `.form`, `__field/__label/__input/__error/__hint/__check/__check-input/__fieldset` | Inputs `aria-invalid="true"` turn danger; checkbox/radio rows outline danger. |
 | `components/card.css` | `.card` | Surface + border + radius + shadow. |
+| `components/flip-cards.css` | `.flip-view*`, `.flip-section*`, `.flip-list`, `.flip-item*` (`__badge--active/--in-review/--mastered/--archived`), `.activity__actions` | Flip-cards screen layout + the dashboard's memorization action row (PR-01). |
 | `components/task-list.css` | `.task-group*`, `.task-item*` | Status groups, count chips, item badges, action row. |
 | `components/quran-cards.css` | `.dash-activities`, `.activity*` | Link cards in a 1→2 column grid; combine with `.card`. |
 | `components/states.css` | `.state-card*` (`--icon`, `--icon--done/--error`, `--title`, `--text`), `.spinner(--lg)`, `.skeleton(--title/--line)` | Empty/error/success messages, retry cards, loaders. |

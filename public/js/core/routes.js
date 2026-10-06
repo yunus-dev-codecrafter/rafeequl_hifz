@@ -78,10 +78,16 @@ export function registerRoutes() {
     }
   });
 
-  route('/flip-cards', () => {
-    if (requireSession()) {
-      renderSoon(byId('app'), 'بطاقات الأخطاء', 'ستظهر هنا بطاقات أخطائك ومراجعتها.');
+  route('/flip-cards', async () => {
+    if (!requireSession()) {
+      return;
     }
+    const stale = newNavigation();
+    const { renderFlipCards } = await import('../features/flip-cards/flip-cards-page.js');
+    if (stale()) {
+      return;
+    }
+    renderFlipCards(byId('app'));
   });
 
   setFallback(() => navigate(isAuthenticated() ? '/' : '/login'));

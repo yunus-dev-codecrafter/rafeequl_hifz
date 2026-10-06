@@ -13,6 +13,7 @@ import { progressSummary } from '../progress/progress-api.js';
 import { wireControls, syncControls } from './controls.js';
 import { renderTaskGroups, wireTaskActions } from '../tasks/task-list.js';
 import { openCreateSheet } from '../tasks/task-create.js';
+import { openEstablishSheet, openMarkSheet, openCorrectSheet } from '../ribat/memorize-sheet.js';
 
 /** Client-side encouragement lines (never contain statistics). */
 const MESSAGES = {
@@ -48,6 +49,7 @@ export function renderDashboard(container) {
   qs('[data-action="create-task"]', root).addEventListener('click', () => {
     openCreateSheet(() => loadDay(root));
   });
+  wireMemActions(root);
 
   return refresh(root);
 }
@@ -229,6 +231,7 @@ function renderProgress(root, result) {
   if (result.status === 'rejected') {
     setSlot(root, 'progress', activityFallback(result.reason, 'تعذر تحميل نطاق الحفظ.'));
     updateProgressBar(bar, 0);
+    showMemActions(root, false);
     return;
   }
 
@@ -236,6 +239,7 @@ function renderProgress(root, result) {
   if (!state.established || state.progress === null) {
     setSlot(root, 'progress', 'لم تنشئ نطاق الحفظ بعد.');
     updateProgressBar(bar, 0);
+    showMemActions(root, true, state);
     return;
   }
 
@@ -246,6 +250,44 @@ function renderProgress(root, result) {
     progress.percent_memorized + '% من رصيدك الحالي · ' + progress.page_count + ' صفحة من ' + progress.total_pages + ' صفحة'
   );
   updateProgressBar(bar, progress.percent_memorized);
+  showMemActions(root, true, state);
+}
+
+/** The memorization write actions live on the نطاق الحفظ card: establish
+ *  before the range exists, then mark/correct — each sheet pre-fills from
+ *  the server's own numbers and reloads the dashboard on success. */
+function wireMemActions(root) {
+  qs('[data-action="establish-range"]', root).addEventListener('click', () => {
+    openEstablishSheet(() => refresh(root));
+  });
+  qs('[data-action="mark-memorized"]', root).addEventListener('click', (event) => {
+    const start = Number(event.currentTarget.dataset.start);
+    openMarkSheet(Number.isInteger(start) && start > 0 ? start : null, () => refresh(root));
+  });
+  qs('[data-action="correct-boundary"]', root).addEventListener('click', (event) => {
+    const boundary = Number(event.currentTarget.dataset.boundary);
+    openCorrectSheet(Number.isInteger(boundary) && boundary > 0 ? boundary : null, () => refresh(root));
+  });
+}
+
+function showMemActions(root, visible, state = null) {
+  const container = qs('[data-slot="mem-actions"]', root);
+  const establish = qs('[data-action="establish-range"]', root);
+  const mark = qs('[data-action="mark-memorized"]', root);
+  const correct = qs('[data-action="correct-boundary"]', root);
+
+  container.hidden = !visible;
+  const established = Boolean(state && state.established);
+  establish.hidden = established;
+  mark.hidden = !established;
+  correct.hidden = !established;
+
+  if (established) {
+    const next = Number(state.next_page_to_memorize);
+    mark.dataset.start = Number.isInteger(next) && next > 0 ? String(next) : '';
+    const boundary = Number(state.current_boundary_page);
+    correct.dataset.boundary = Number.isInteger(boundary) && boundary > 0 ? String(boundary) : '';
+  }
 }
 
 function activityFallback(reason, notEstablishedText) {

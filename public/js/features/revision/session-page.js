@@ -94,6 +94,18 @@ function renderNoPlan(root) {
   });
 }
 
+/** A plan requires an established memorization range (server 404) — send
+ *  the user to the dashboard where the range sheets now live. */
+function renderNeedState(root) {
+  renderStatusCard(root, {
+    icon: '!',
+    title: 'أنشئ نطاق الحفظ أولاً',
+    text: 'لا يمكن إنشاء خطة مراجعة قبل تحديد نطاق حفظك الحالي. أنشئ النطاق من الرئيسية ثم عد إلى المراجعة.',
+    actionLabel: 'إلى الرئيسية',
+    onAction: () => navigate('/'),
+  });
+}
+
 function renderPaused(root, detail) {
   renderStatusCard(root, {
     icon: '⏸',
@@ -146,6 +158,10 @@ async function createNewPlan(root) {
     notify.success('تم إنشاء خطة المراجعة');
     await refresh(root);
   } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      renderNeedState(root);
+      return;
+    }
     handleActionError(error, root);
   }
 }

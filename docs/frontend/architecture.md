@@ -37,8 +37,8 @@ Status: implemented (Prompt 16). The reusable-module layout of the Vanilla JS (E
 | Folder | Responsibility |
 | --- | --- |
 | `features/tasks/` | `tasks-api.js` (8 task endpoints), `task-list.js` (group rendering + quick status transitions), `task-create.js` (create sheet: vocabulary, mirrored validation, 422 field errors). |
-| `features/ribat/` | `memorization-api.js` — `/memorization/state|history|rabt` wrappers (establish, boundary correction, memorize, ربط window). |
-| `features/flip-cards/` | `flip-cards-api.js` — the 8 flip-card endpoints (queue, categories, CRUD, review, status). |
+| `features/ribat/` | `memorization-api.js` — `/memorization/state|history|rabt` wrappers (establish, boundary correction, memorize, ربط window); `memorize-sheet.js` — the three write sheets (establish / mark / correct) opened from the dashboard (PR-01). |
+| `features/flip-cards/` | `flip-cards-api.js` — the 8 flip-card endpoints (queue, categories, CRUD, review, status); `flip-cards-page.js` — the `#/flip-cards` screen: flag / review / status moves / delete (PR-01). |
 | `features/revision/` | `revision-api.js` + `session-page.js` (screen from Prompt 12). |
 | `features/dashboard/` | `dashboard-page.js` (render orchestration), `controls.js` (control row only). |
 | `features/settings/` | `settings-api.js` (endpoints), `settings-sync.js` (server→device reconcile + last-good snapshot for offline rollback), `settings-sheet.js` — sheet extracted from the dashboard: theme, awake, sound, desktop-notification switch + daily-reminder config, account, logout. |

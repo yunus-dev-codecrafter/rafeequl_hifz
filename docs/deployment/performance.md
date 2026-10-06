@@ -118,7 +118,7 @@ patterns; every Quran-critical query is PK/covering-index driven.
 | HTML shell on the wire | 34,062 raw | 6,213 (gzip) | **−82%** |
 | CSS + JS served on Apache | raw | gzip via `mod_deflate` (`public/.htaccess`) | text ≈6× smaller |
 | Boot serial round trips | 4 (`me` → reconcile → day → activities) | 2 (`me` → [reconcile ∥ page chunk ∥ day ∥ activities]) | **−2 RTT** |
-| PWA precache install | 761,425 B / 56 entries | 221,532 B / 53 entries (icons trimmed to icon-192) | **−71%** |
+| PWA precache install | 761,425 B / 56 entries | 216,027 B / 56 entries (icons trimmed to icon-192; re-measured 2026-10-06 after the PR-01 UI screens) | **−72%** |
 | Entry JS graph | all four page trees pulled eagerly by `routes.js` | page trees behind dynamic `import()`; **19,039 B** of page files leave the entry graph | lazy on navigation |
 | Icon source master in `public/` | 1,301,980 B file in docroot | moved to `tools/app-icon.png` (regenerator verified byte-identical) | docroot −1.27 MB |
 | Query indexes | 15 shapes EXPLAINed | unchanged — no migration `0012` | correctness kept, complexity not added |
@@ -134,9 +134,9 @@ Implementation notes:
 - **SW cache-first shell**: navigations paint from the cached shell and
   revalidate in the background (`event.waitUntil`); API/uploads/non-GET
   guards run first, so no personal data changes hands.
-- **Lazy routes**: `routes.js` keeps `soon-page` static (two routes share
-  it) and dynamic-imports dashboard/login/register/revision behind a nav
-  token that drops stale chunks on fast navigation.
+- **Lazy routes**: `routes.js` keeps `soon-page` static (الربط route still
+  shares it) and dynamic-imports dashboard/login/register/revision/flip-cards
+  behind a nav token that drops stale chunks on fast navigation.
 - **Static assets are only gzip-compressed under Apache** (`.htaccess`);
   the PHP built-in dev server serves them raw — a dev-only caveat.
 
@@ -167,7 +167,7 @@ without it.
 - [ ] **Never cache**: `/api/v1/*` (`no-store`, enforced in PHP and skipped
       by the SW) — Quran-derived user data must not be replayed stale.
 - [ ] **Re-measure after deploy**: browser devtools → Network: boot JSON
-      should show `content-encoding: gzip`, precache install size ≈221 KB,
+      should show `content-encoding: gzip`, precache install size ≈216 KB,
       and a second load of `/` should come from the SW cache instantly.
 
 ### Quran-data correctness guard

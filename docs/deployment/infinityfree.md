@@ -190,7 +190,7 @@ every non-file path (`/api/v1/…`) reaches `index.php` through the
 equivalent is in §10.
 
 **PWA:** needs HTTPS (§3) — then `sw.js`, `manifest.json` and the icons are
-served from the same origin; the Prompt-26 cache layer (`rafeeq-static-v5`,
+served from the same origin; the Prompt-26 cache layer (`rafeeq-static-v6`,
 cache-first shell + background revalidate) applies unchanged.
 
 **Caching:** three layers, all host-portable: PHP gzip inside

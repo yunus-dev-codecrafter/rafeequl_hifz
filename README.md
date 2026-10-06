@@ -400,7 +400,7 @@ Host-portable deployment: build one bundle, upload it, import one SQL file. The 
 
 ## Production readiness review (Prompt 28)
 
-Full 20-area production-readiness review with severity-classified findings (BLOCKER, CRITICAL, HIGH, MEDIUM, LOW, OPTIONAL). Current verdict: **do not deploy yet** — 1 BLOCKER (core memorization/flip-card write flows have no UI); the gate categories (Quran-data, security, authentication, data-integrity) are all clean.
+Full 20-area production-readiness review with severity-classified findings (BLOCKER, CRITICAL, HIGH, MEDIUM, LOW, OPTIONAL). Verdict: **deployable** — the original 1 BLOCKER (PR-01: core memorization/flip-card write flows had no UI) was resolved on 2026-10-06 by shipping the establish/mark/correct sheets and the full `#/flip-cards` screen, with the full regression + 14 smokes re-run green; PR-02 (stale precache figures) is also fixed. Remaining: 2 LOW (schema doc gap, soft-delete hygiene) + 4 OPTIONAL — none gate deployment; the gate categories (Quran-data, security, authentication, data-integrity) were and remain clean.
 
 | File | Responsibility |
 | --- | --- |

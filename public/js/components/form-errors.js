@@ -33,7 +33,7 @@ export function clearFieldErrors(form) {
     node.removeAttribute('id');
     node.removeAttribute('role');
   });
-  qsa('.form__input', form).forEach((input) => {
+  qsa('.form__input, .form__check-input', form).forEach((input) => {
     input.removeAttribute('aria-invalid');
     setDescribedBy(input, []);
   });

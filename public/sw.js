@@ -11,7 +11,7 @@
  * - Bump CACHE when the precache list or shell changes.
  */
 
-const CACHE = 'rafeeq-static-v5';
+const CACHE = 'rafeeq-static-v6';
 
 // Prompt 26: only icon-192 is precached. The 512/maskable/apple-touch icons
 // are fetched on demand at OS-install time via the manifest — caching them
@@ -26,6 +26,7 @@ const PRECACHE = [
   '/css/components/bottom-sheet.css',
   '/css/components/buttons.css',
   '/css/components/card.css',
+  '/css/components/flip-cards.css',
   '/css/components/forms.css',
   '/css/components/modal.css',
   '/css/components/navigation.css',
@@ -56,11 +57,13 @@ const PRECACHE = [
   '/js/features/dashboard/controls.js',
   '/js/features/dashboard/dashboard-page.js',
   '/js/features/flip-cards/flip-cards-api.js',
+  '/js/features/flip-cards/flip-cards-page.js',
   '/js/features/progress/progress-api.js',
   '/js/features/reminders/reminders.js',
   '/js/features/revision/revision-api.js',
   '/js/features/revision/session-page.js',
   '/js/features/ribat/memorization-api.js',
+  '/js/features/ribat/memorize-sheet.js',
   '/js/features/settings/settings-api.js',
   '/js/features/settings/settings-sheet.js',
   '/js/features/settings/settings-sync.js',
