@@ -1,0 +1,13 @@
+# Server-side code - never web-reachable.
+# This is the inner layer of the htdocs-only deployment layout: .htaccess
+# in the document root also blocks these URLs, so this file only matters
+# if that outer rule is ever bypassed. In the split layout this directory
+# lives above the document root and the file is inert. Nothing in the app
+# reads these files over HTTP - the front controller includes them by path.
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

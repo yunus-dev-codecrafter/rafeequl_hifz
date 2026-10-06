@@ -1,0 +1,44 @@
+# ============================================================
+# Rafeequl Hifz - Root Apache Configuration for Shared Hosting
+# ============================================================
+
+# Prioritize index.php over default hosting index pages (index2.html, index.html)
+DirectoryIndex index.php index.html index2.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # 1. Deny direct web access to server-side code, runtime data, and repository folders
+  RewriteRule ^(app|config|routes|storage|data|database|tests|tools|deploy|docs|\.git)(/|$) - [F,L]
+  RewriteRule ^\.env - [F,L]
+
+  # 2. If the request is for an existing file or directory at the root, serve it directly
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 3. If a public/ subfolder exists, route requests to public/ (covers static assets & routes)
+  RewriteCond %{REQUEST_URI} !^/public/
+  RewriteCond %{DOCUMENT_ROOT}/public/$1 -f [OR]
+  RewriteCond %{DOCUMENT_ROOT}/public/$1 -d [OR]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ public/$1 [L]
+
+  # 4. Fallback front-controller
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L]
+</IfModule>
+
+# Protect dotfiles (.env, .git, etc.)
+<IfModule mod_authz_core.c>
+  <FilesMatch "^\.">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+  <FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+  </FilesMatch>
+</IfModule>

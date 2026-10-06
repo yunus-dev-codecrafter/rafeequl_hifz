@@ -27,12 +27,23 @@ final class ShellController extends Controller
         // serves, so it is correct under any layout.
         $documentRoot = (string) ($_SERVER['DOCUMENT_ROOT'] ?? '');
         if ($documentRoot !== '') {
-            $html = @file_get_contents($documentRoot . '/shell.html');
+            $html = @file_get_contents(rtrim($documentRoot, '/') . '/shell.html');
+            if ($html === false) {
+                $html = @file_get_contents(rtrim($documentRoot, '/') . '/public/shell.html');
+            }
         }
 
-        // CLI / no-document-root fallback: the development layout.
+        // BASE_PATH fallbacks: either document root or repository root
+        if ($html === false && defined('BASE_PATH')) {
+            $html = @file_get_contents(BASE_PATH . '/shell.html');
+            if ($html === false) {
+                $html = @file_get_contents(BASE_PATH . '/public/shell.html');
+            }
+        }
+
+        // Fallback relative to this file's repository location
         if ($html === false) {
-            $html = @file_get_contents(BASE_PATH . '/public/shell.html');
+            $html = @file_get_contents(dirname(__DIR__, 2) . '/public/shell.html');
         }
 
         if ($html === false) {

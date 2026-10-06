@@ -1,0 +1,11 @@
+# Runtime data (logs, cache, sessions) - never web-reachable. Inner layer
+# of the htdocs-only deployment layout; inert in the split layout where
+# this directory sits above the document root. PHP writes here through the
+# filesystem, never over HTTP.
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

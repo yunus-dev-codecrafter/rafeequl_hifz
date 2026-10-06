@@ -45,6 +45,15 @@
 # Documented in README.md (Layout) since Prompt 05.
 <IfModule mod_rewrite.c>
   RewriteEngine On
+
+  # Server-side code and runtime data are never served. This is what keeps
+  # the htdocs-only layout (app/, config/, routes/, storage/ living inside
+  # the document root) safe: these directories are reachable by URL there,
+  # unlike the split layout where they sit above the document root.
+  # The per-directory .htaccess files in those directories deny access too
+  # - this rule is the outer layer for hosts that skip them.
+  RewriteRule ^(app|config|routes|storage)(/|$) - [F,L]
+
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.php [L]

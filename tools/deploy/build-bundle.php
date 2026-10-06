@@ -15,6 +15,14 @@ declare(strict_types=1);
  *     storage/                root, never web-reachable)
  *     .env.example          -> template; the operator writes the real .env
  *     MANIFEST.sha256       -> written next to dist/ (deploy/MANIFEST.sha256)
+ *
+ *   Hosts whose panel refuses any upload outside the document root can
+ *   instead extract the payload DIRECTLY INTO htdocs/ so that index.php,
+ *   app/, config/, routes/, storage/ and .env all sit side by side in the
+ *   document root. That layout stays safe because index.php resolves its
+ *   bootstrap by location and every server-side directory ships a deny-all
+ *   .htaccess, mirrored by the RewriteRule in htdocs/.htaccess. See
+ *   docs/deployment/infinityfree.md (Layout A / Layout B).
  *   deploy/sql/
  *     rafeequl-hifz.sql     -> single phpMyAdmin import: migrations
  *                              0001..0011 (raw file bytes) + the 11
@@ -296,6 +304,16 @@ foreach (['logs', 'cache', 'sessions'] as $sub) {
     $copied++;
 }
 
+// storage/.htaccess is not reached by the whitelist copy above (storage is
+// built rather than mirrored), but it is required: it is the deny-all guard
+// that keeps runtime data unreachable when a host keeps the whole
+// application inside the document root (htdocs-only layout).
+if (!copy($root . '/storage/.htaccess', $dist . '/storage/.htaccess')) {
+    fwrite(STDERR, "cannot copy storage/.htaccess\n");
+    exit(1);
+}
+$copied++;
+
 if (!copy($root . '/.env.example', $dist . '/.env.example')) {
     fwrite(STDERR, "cannot copy .env.example\n");
     exit(1);
@@ -316,7 +334,7 @@ foreach ($distFiles as $rel) {
         $violations[] = $rel;
     }
 }
-foreach (['htdocs/index.php', 'htdocs/.htaccess', 'htdocs/sw.js', 'app/bootstrap.php', 'config/database.php', 'routes/api.php', '.env.example'] as $required) {
+foreach (['htdocs/index.php', 'htdocs/.htaccess', 'htdocs/sw.js', 'app/bootstrap.php', 'app/.htaccess', 'config/database.php', 'config/.htaccess', 'routes/api.php', 'routes/.htaccess', 'storage/.htaccess', '.env.example'] as $required) {
     if (!is_file($dist . '/' . $required)) {
         $violations[] = 'missing required ' . $required;
     }

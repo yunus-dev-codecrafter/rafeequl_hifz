@@ -14,10 +14,15 @@ a re-upload. Produced by Prompt 27.
 
 ## 1. How the layout maps
 
-The app has been layout-invariant since Prompt 05: `public/` is the document
-root and sits **one level below** the project root (`index.php` resolves
-`dirname(__DIR__) . '/app/…'`). InfinityFree's structure is exactly that
-split, so deployment is a mapping, not a restructure:
+Two layouts are supported. `bootstrap.php` derives `BASE_PATH` from its own
+location, and `index.php` resolves its bootstrap by probing `./app` first
+then `../app`, so nothing in the application cares which one you use.
+
+### Layout A — split (preferred)
+
+`public/` is the document root and sits **one level below** the project root.
+InfinityFree's structure is exactly that split, so deployment is a mapping,
+not a restructure:
 
 | This repository | InfinityFree (FTP account root) | Web-reachable? |
 | --- | --- | --- |
@@ -30,10 +35,33 @@ split, so deployment is a mapping, not a restructure:
 | `.env.example` | `.env.example` | **no** |
 | `tests/ docs/ tools/ data/ database/` | **not uploaded at all** | — |
 
+### Layout B — htdocs-only (when the panel blocks root uploads)
+
+Some free hosts — InfinityFree's File Manager included — refuse any upload
+outside `htdocs/`. In that case extract the payload **into `htdocs/`** so
+everything sits side by side in the document root:
+
+| This repository | InfinityFree (`htdocs/`) | Web-reachable? |
+| --- | --- | --- |
+| `public/*` | `htdocs/*` | yes |
+| `app/` | `htdocs/app/` | **no** — denied by `htdocs/.htaccess` **and** `app/.htaccess` |
+| `config/` | `htdocs/config/` | **no** — same two layers |
+| `routes/` | `htdocs/routes/` | **no** — same two layers |
+| `storage/` | `htdocs/storage/` | **no** — same two layers |
+| `.env` | `htdocs/.env` | **no** — dotfile rule in `htdocs/.htaccess` |
+| `tests/ docs/ tools/ data/ database/` | **not uploaded at all** | — |
+
+Layout B stays compliant with §7 because access is denied twice: a
+`RewriteRule ^(app|config|routes|storage)(/|$) - [F,L]` in the document
+root's `.htaccess`, plus a `Require all denied` `.htaccess` inside each of
+those four directories (which also covers a host that ships no mod_rewrite).
+The builder refuses to produce a payload missing either guard, and
+`test_deploy.ps1` boots **both** layouts to prove they work.
+
 Any host whose document root is a subfolder of the app root works the same
-way (Apache `public_html/`, IIS `wwwroot/`, nginx `public/`): rename `htdocs/`
-to that folder, upload the siblings next to it — nothing else changes. This
-is the whole portability story (§10).
+way as Layout A (Apache `public_html/`, IIS `wwwroot/`, nginx `public/`):
+rename `htdocs/` to that folder, upload the siblings next to it — nothing
+else changes. This is the whole portability story (§10).
 
 ## 2. Hosting facts that shaped this guide
 
@@ -53,7 +81,7 @@ announcements, knowledge base):
 | Database import | phpMyAdmin in the panel | §5 (no SSH, no cron — that's why the SQL is one file) |
 | Cron | **none** (disabled platform-wide since 2023) | Reminders/notifications are client-side JS — unaffected |
 | Email | **none** on free accounts | Password reset logs intent server-side, never mails — unaffected |
-| Limits | 30–50k HTTP hits/day, ~30k inodes, 5 GB disk | Boot ≈ 40 requests/visit → ≈750–1,250 visits/day inside the cap; we have ~176 payload files |
+| Limits | 30–50k HTTP hits/day, ~30k inodes, 5 GB disk | Boot ≈ 40 requests/visit → ≈750–1,250 visits/day inside the cap; we have ~183 payload files |
 | Region | United Kingdom | Higher latency elsewhere; nothing to configure |
 
 ## 3. Prerequisites
@@ -81,7 +109,7 @@ php tools/deploy/build-bundle.php --force
 
 Output:
 
-- `deploy/dist/` — the upload payload (176 files, ≈1.1 MB):
+- `deploy/dist/` — the upload payload (183 files, ≈1.1 MB):
   `htdocs/` (the contents of `public/`) + `app/ config/ routes/ storage/
   .env.example` as siblings;
 - `deploy/MANIFEST.sha256` — SHA-256 of every payload file;
@@ -102,6 +130,18 @@ then:
 **Upload (File Manager):** zip the *contents* of `deploy/dist/` → upload to
 the account root → extract there. Then confirm `htdocs/` inside it merged
 with the existing one (no second `dist/htdocs` nesting).
+
+**Upload (Layout B — the host refuses uploads outside `htdocs/`):** zip the
+*contents* of `deploy/dist/htdocs/` **together with** `app/`, `config/`,
+`routes/`, `storage/` and `.env.example` from `deploy/dist/`, all at the zip
+root (no `htdocs/` wrapper folder) → upload that zip → extract it **into
+`htdocs/`**. Result: `htdocs/{index.php,.htaccess,shell.html,sw.js,
+manifest.json,assets/,css/,js/,uploads/,app/,config/,routes/,storage/,.env}`.
+Never leave a second `htdocs/` nested inside the first.
+
+Layout B is covered by the same payload audit, plus assertions that each of
+the four server-side directories ships its deny-all `.htaccess` and that
+`htdocs/.htaccess` carries the blocking `RewriteRule`.
 
 The payload audit inside the builder guarantees no `.env`, no
 `tests/ docs/ tools/ data/ database/`, no `*.log`/`*.sql` can be uploaded —
@@ -138,6 +178,11 @@ php tools/deploy/import-sql.php --database=<name> --drop
 
 Create `.env` **at the account root** (one level above `htdocs/`), based on
 `.env.example`:
+
+> **Layout B:** put `.env` **inside `htdocs/`** instead — `bootstrap.php`
+> finds it next to the directory that holds `app/`. The dotfile rule in
+> `htdocs/.htaccess` still keeps it unreachable (403), and `/.env` must
+> return 403/404 in the §8 checklist.
 
 ```ini
 APP_NAME="Rafeequl Hifz"
@@ -221,6 +266,15 @@ would go to `htdocs/uploads/`, which exists but is not used yet.)
 | Tests, docs, tools | not uploaded | Same audit |
 | SQL bundle | stays on your machine | phpMyAdmin reads it from your disk; nothing lands on the server |
 
+**Layout B variant** (§1): `.env`, `config/`, `routes/`, `app/` and
+`storage/` live *inside* `htdocs/` instead of above it. They are still
+unreachable, now by two independent deny rules — the `RewriteRule ^(app|
+config|routes|storage)(/|$) - [F,L]` in `htdocs/.htaccess` (403 before any
+file is served) and a `Require all denied` `.htaccess` inside each of the
+four directories (which holds even where mod_rewrite is absent). `.env`
+keeps the existing dotfile rule. The builder hard-fails if either guard is
+missing from the payload.
+
 ## 8. Verification checklist (first run)
 
 Run in order after §4–§6:
@@ -248,7 +302,7 @@ into a fresh DB, boots from the exact `htdocs/` layout, probes).
 
 | Limit | Our usage |
 | --- | ≈40 HTTP requests per boot → ~750–1,250 visits/day under a 30k hits/day cap (raise via caching; SW makes repeat visits ≈ 1–2 hits) |
-| ~30k inodes | ≈176 payload files + SQL rows — no impact |
+| ~30k inodes | ≈183 payload files + SQL rows — no impact |
 | 50 MB per DB | ≈2 MB (6,236 ayahs ×2 tables + app rows) — no impact |
 | 4 MySQL connections | 1 PDO connection per request — no impact |
 | No cron | Reminders are client-side — by design |
