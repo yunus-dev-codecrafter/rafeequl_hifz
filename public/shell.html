@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="رفيق الحفظ">
+  <title>رفيق الحفظ</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon-180.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Cpath d='M32 18c-5-4-13-5.5-19-4v31c6-1.5 14 0 19 4 5-4 13-5.5 19-4V14c-6-1.5-14 0-19 4z' fill='%23ffffff'/%3E%3Cpath d='M32 18v31' stroke='%230f766e' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components/buttons.css">
+<link rel="stylesheet" href="/css/components/navigation.css">
+<link rel="stylesheet" href="/css/components/forms.css">
+<link rel="stylesheet" href="/css/components/card.css">
+<link rel="stylesheet" href="/css/components/flip-cards.css">
+<link rel="stylesheet" href="/css/components/task-list.css">
+<link rel="stylesheet" href="/css/components/quran-cards.css">
+<link rel="stylesheet" href="/css/components/states.css">
+<link rel="stylesheet" href="/css/components/alerts.css">
+<link rel="stylesheet" href="/css/components/modal.css">
+<link rel="stylesheet" href="/css/components/progress-bar.css">
+<link rel="stylesheet" href="/css/components/toast.css">
+<link rel="stylesheet" href="/css/components/bottom-sheet.css">
+  <link rel="stylesheet" href="/css/pages/login.css">
+  <link rel="stylesheet" href="/css/pages/revision.css">
+  <link rel="stylesheet" href="/css/pages/dashboard.css">
+</head>
+<body>
+  <a class="skip-link" id="skip-link" href="#app">تخطٍ إلى المحتوى</a>
+  <div class="offline-banner" id="offline-banner" role="status" hidden>
+    لا يوجد اتصال بالإنترنت — المراجعة والحفظ يحتاجان اتصالاً
+  </div>
+  <header class="app-header" id="app-header" hidden>
+    <div class="app-header__inner">
+      <a class="app-header__brand" href="#/">رفيق الحفظ</a>
+      <nav class="app-header__nav" aria-label="التنقل الرئيسي">
+        <a class="app-header__link" href="#/revision">المراجعة</a>
+        <button class="btn btn--ghost" id="logout-button" type="button">خروج</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main" id="app" tabindex="-1">
+    <p class="boot-loading" id="boot-loading">جارٍ التحميل…</p>
+  </main>
+
+  <div class="toast-region" id="toast-region" role="status" aria-live="polite"></div>
+
+  <template id="view-login">
+    <section class="auth-view" aria-labelledby="login-title">
+      <h1 class="auth-view__title" id="login-title">تسجيل الدخول</h1>
+      <p class="auth-view__tagline">تابع حفظك ومراجعتك بانتظام</p>
+      <form class="form" id="login-form" novalidate>
+        <div class="form__field">
+          <label class="form__label" for="login-email">البريد الإلكتروني</label>
+          <input class="form__input" id="login-email" name="email" type="email" dir="ltr"
+                 autocomplete="email" inputmode="email" required>
+          <p class="form__error" data-error-for="email" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="login-password">كلمة المرور</label>
+          <input class="form__input" id="login-password" name="password" type="password" dir="ltr"
+                 autocomplete="current-password" required>
+          <p class="form__error" data-error-for="password" hidden></p>
+        </div>
+        <button class="btn btn--primary btn--block" id="login-submit" type="submit">دخول</button>
+        <p class="auth-view__switch">ليس لديك حساب؟ <a href="#/register">إنشاء حساب جديد</a></p>
+      </form>
+    </section>
+  </template>
+
+  <template id="view-register">
+    <section class="auth-view" aria-labelledby="register-title">
+      <h1 class="auth-view__title" id="register-title">إنشاء حساب</h1>
+      <p class="auth-view__tagline">ابدأ رحلة الحفظ والمراجعة اليوم</p>
+      <form class="form" id="register-form" novalidate>
+        <div class="form__field">
+          <label class="form__label" for="register-name">الاسم (اختياري)</label>
+          <input class="form__input" id="register-name" name="display_name" type="text"
+                 autocomplete="name" maxlength="100">
+          <p class="form__error" data-error-for="display_name" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="register-email">البريد الإلكتروني</label>
+          <input class="form__input" id="register-email" name="email" type="email" dir="ltr"
+                 autocomplete="email" inputmode="email" required>
+          <p class="form__error" data-error-for="email" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="register-password">كلمة المرور (8 أحرف على الأقل)</label>
+          <input class="form__input" id="register-password" name="password" type="password" dir="ltr"
+                 autocomplete="new-password" minlength="8" required>
+          <p class="form__error" data-error-for="password" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="register-confirm">تأكيد كلمة المرور</label>
+          <input class="form__input" id="register-confirm" name="password_confirm" type="password" dir="ltr"
+                 autocomplete="new-password" minlength="8" required>
+          <p class="form__error" data-error-for="password_confirm" hidden></p>
+        </div>
+        <button class="btn btn--primary btn--block" id="register-submit" type="submit">إنشاء الحساب</button>
+        <p class="auth-view__switch">لديك حساب بالفعل؟ <a href="#/login">تسجيل الدخول</a></p>
+      </form>
+    </section>
+  </template>
+
+  <template id="view-revision">
+    <section class="revision-view" aria-labelledby="revision-title">
+      <div class="revision-view__head">
+        <h1 class="revision-view__title" id="revision-title">المراجعة</h1>
+        <p class="revision-view__meta" data-slot="plan-meta"></p>
+      </div>
+      <div data-slot="status"></div>
+      <div data-slot="session" hidden></div>
+      <section class="segment-list" aria-labelledby="segment-list-title" data-slot="segments-section" hidden>
+        <h2 class="segment-list__title" id="segment-list-title">مقطعات الدورة الحالية</h2>
+        <ul class="segment-list__items" data-slot="segments"></ul>
+      </section>
+    </section>
+  </template>
+
+  <template id="panel-session">
+    <article class="session card" aria-labelledby="session-heading">
+      <div class="session__head">
+        <h2 class="session__heading" id="session-heading">الجلسة الجارية</h2>
+        <p class="session__segment" data-slot="segment-label"></p>
+      </div>
+      <p class="session__current-label">الصفحة الحالية</p>
+      <p class="session__current" data-slot="current-page"></p>
+      <dl class="session__stats">
+        <div class="session__stat">
+          <dt>صفحة البداية</dt>
+          <dd data-slot="start-page"></dd>
+        </div>
+        <div class="session__stat">
+          <dt>صفحة النهاية</dt>
+          <dd data-slot="end-page"></dd>
+        </div>
+        <div class="session__stat">
+          <dt>المكتمل</dt>
+          <dd data-slot="completed"></dd>
+        </div>
+        <div class="session__stat">
+          <dt>المتبقي</dt>
+          <dd data-slot="remaining"></dd>
+        </div>
+      </dl>
+      <div class="progress-bar" role="progressbar" aria-label="تقدم الجلسة"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <span class="progress-bar__fill"></span>
+      </div>
+      <p class="session__percent" data-slot="percent"></p>
+      <p class="session__hint" data-slot="hint" hidden></p>
+      <div class="session__controls">
+        <button class="btn btn--primary" type="button" data-action="next">التالي</button>
+        <button class="btn btn--success" type="button" data-action="finish">إنهاء الجلسة</button>
+        <button class="btn" type="button" data-action="pause">إيقاف مؤقت</button>
+        <button class="btn btn--danger" type="button" data-action="interrupt">انقطاع</button>
+      </div>
+    </article>
+  </template>
+
+  <template id="sheet-interruption">
+    <div class="bottom-sheet__backdrop" data-action="dismiss"></div>
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="interrupt-title">
+      <h2 class="bottom-sheet__title" id="interrupt-title">تسجيل انقطاع</h2>
+      <form class="bottom-sheet__body form" id="interrupt-form" novalidate>
+        <div class="form__field">
+          <label class="form__label" for="interrupt-reason">سبب الانقطاع (اختياري)</label>
+          <input class="form__input" id="interrupt-reason" name="interruption_reason"
+                 type="text" maxlength="190" placeholder="مثال: مكالمة عاجلة">
+          <p class="form__error" data-error-for="interruption_reason" hidden></p>
+        </div>
+        <div class="bottom-sheet__actions">
+          <button class="btn btn--danger btn--block" type="submit">تسجيل الانقطاع</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="view-dashboard">
+    <section class="dash" aria-labelledby="dash-brand-title">
+      <header class="dash-hero card">
+        <div class="dash-hero__identity">
+          <span class="dash-hero__icon" aria-hidden="true">
+            <svg viewBox="0 0 64 64" width="34" height="34" focusable="false">
+              <path d="M32 18c-5-4-13-5.5-19-4v31c6-1.5 14 0 19 4 5-4 13-5.5 19-4V14c-6-1.5-14 0-19 4z" fill="currentColor"/>
+              <path d="M32 18v31" fill="none" stroke="var(--color-primary-soft)" stroke-width="3"/>
+            </svg>
+          </span>
+          <div class="dash-hero__names">
+            <h1 class="dash-hero__title" id="dash-brand-title">رفيق الحفظ</h1>
+            <p class="dash-hero__latin" lang="en" dir="ltr">Rafeequl Hifz</p>
+          </div>
+        </div>
+        <p class="dash-hero__date" data-slot="date"></p>
+      </header>
+
+      <div class="dash-controls" role="group" aria-label="أدوات العرض">
+        <button class="dash-control" type="button" data-control="awake" aria-pressed="false">
+          <span class="dash-control__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <rect x="3" y="4" width="18" height="13" rx="2"/>
+              <path d="M9 21h6M12 17v4"/>
+            </svg>
+          </span>
+          <span class="dash-control__label">الشاشة</span>
+        </button>
+        <button class="dash-control" type="button" data-control="sound" aria-pressed="false">
+          <span class="dash-control__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <path d="M4 9v6h4l5 4V5L8 9H4z"/>
+              <path d="M16 9a4 4 0 0 1 0 6"/>
+            </svg>
+          </span>
+          <span class="dash-control__label">الصوت</span>
+        </button>
+        <button class="dash-control" type="button" data-control="theme">
+          <span class="dash-control__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <circle cx="12" cy="12" r="8"/>
+              <path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>
+          <span class="dash-control__label" data-slot="theme-label">الوضع</span>
+        </button>
+        <button class="dash-control" type="button" data-control="settings">
+          <span class="dash-control__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+              <path d="M4 7h10M18 7h2M4 17h4M12 17h8"/>
+              <circle cx="16" cy="7" r="2"/>
+              <circle cx="10" cy="17" r="2"/>
+            </svg>
+          </span>
+          <span class="dash-control__label">الإعدادات</span>
+        </button>
+      </div>
+
+      <section class="card dash-summary" aria-labelledby="dash-summary-title">
+        <p class="dash-summary__message" data-slot="message"></p>
+        <h2 class="dash-summary__heading" id="dash-summary-title">إنجاز اليوم</h2>
+        <dl class="dash-stats">
+          <div class="dash-stat">
+            <dt>إجمالي المهام</dt>
+            <dd data-slot="total">…</dd>
+          </div>
+          <div class="dash-stat">
+            <dt>قيد التنفيذ</dt>
+            <dd data-slot="active">…</dd>
+          </div>
+          <div class="dash-stat">
+            <dt>المكتملة</dt>
+            <dd data-slot="completed">…</dd>
+          </div>
+          <div class="dash-stat">
+            <dt>النسبة</dt>
+            <dd data-slot="percent">…</dd>
+          </div>
+        </dl>
+        <div class="progress-bar" role="progressbar" aria-label="نسبة إنجاز مهام اليوم"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span class="progress-bar__fill"></span>
+        </div>
+      </section>
+
+      <section class="dash-tasks" aria-labelledby="dash-tasks-title">
+        <div class="dash-tasks__head">
+          <h2 class="dash-tasks__title" id="dash-tasks-title">مهام اليوم</h2>
+          <button class="btn btn--primary" type="button" data-action="create-task">مهمة جديدة</button>
+        </div>
+        <div class="dash-tasks__content" data-slot="content">
+          <p class="dash-loading">جارٍ تحميل المهام…</p>
+        </div>
+      </section>
+
+      <section class="dash-quran" aria-labelledby="dash-quran-title">
+        <h2 class="dash-quran__title" id="dash-quran-title">أنشطة القرآن</h2>
+        <ul class="dash-activities">
+          <li>
+            <a class="activity card" href="#/revision">
+              <span class="activity__title">مراجعة</span>
+              <span class="activity__text">خطة المراجعة اليومية ومقطعات دوّرك</span>
+              <span class="activity__cta">افتح المراجعة</span>
+            </a>
+          </li>
+          <li>
+            <a class="activity card" href="#/rabt">
+              <span class="activity__title">ربط</span>
+              <span class="activity__text" data-slot="rabt">جارٍ التحميل…</span>
+              <span class="activity__cta">افتح الربط</span>
+            </a>
+          </li>
+          <li>
+            <a class="activity card" href="#/flip-cards">
+              <span class="activity__title">بطاقات الأخطاء</span>
+              <span class="activity__text" data-slot="queue">جارٍ التحميل…</span>
+              <span class="activity__cta">افتح البطاقات</span>
+            </a>
+          </li>
+          <li>
+            <div class="activity activity--static card">
+              <span class="activity__title">نطاق الحفظ</span>
+              <span class="activity__text" data-slot="progress">جارٍ التحميل…</span>
+              <div class="progress-bar" role="progressbar" aria-label="نسبة الحفظ من المصحف"
+                   aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-slot="progress-bar">
+                <span class="progress-bar__fill"></span>
+              </div>
+              <div class="activity__actions" data-slot="mem-actions" hidden>
+                <button class="btn btn--sm btn--primary" type="button" data-action="establish-range" hidden>إنشاء نطاق الحفظ</button>
+                <button class="btn btn--sm" type="button" data-action="mark-memorized" hidden>تسجيل محفوظ</button>
+                <button class="btn btn--sm" type="button" data-action="correct-boundary" hidden>تصحيح الحد</button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="dash-progress" aria-labelledby="dash-progress-title">
+        <h2 class="dash-progress__title" id="dash-progress-title">التقدم والمتابعة</h2>
+
+        <div class="card dash-progress__card">
+          <h3 class="dash-progress__subtitle">الحفظ</h3>
+          <dl class="dash-stats">
+            <div class="dash-stat">
+              <dt>صفحات محفوظة</dt>
+              <dd data-slot="mem-pages">…</dd>
+            </div>
+            <div class="dash-stat">
+              <dt>نسبة الحفظ</dt>
+              <dd data-slot="mem-percent">…</dd>
+            </div>
+            <div class="dash-stat">
+              <dt>حد الحفظ</dt>
+              <dd data-slot="mem-boundary">…</dd>
+            </div>
+            <div class="dash-stat">
+              <dt>محفوظة · 14 يومًا</dt>
+              <dd data-slot="mem-recent">…</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="card dash-progress__card">
+          <h3 class="dash-progress__subtitle">المراجعة</h3>
+          <dl class="dash-stats">
+            <div class="dash-stat">
+              <dt>جلسات · 14 يومًا</dt>
+              <dd data-slot="rev-sessions">…</dd>
+            </div>
+            <div class="dash-stat">
+              <dt>أيام المراجعة · 14 يومًا</dt>
+              <dd data-slot="rev-days">…</dd>
+            </div>
+            <div class="dash-stat">
+              <dt>مقاطع مكتملة</dt>
+              <dd data-slot="rev-segments">…</dd>
+            </div>
+            <div class="dash-stat">
+              <dt>جلسات المراجعة الكلية</dt>
+              <dd data-slot="rev-total">…</dd>
+            </div>
+          </dl>
+          <div class="progress-bar" role="progressbar" aria-label="أيام المراجعة خلال آخر 14 يومًا"
+               aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-slot="rev-bar">
+            <span class="progress-bar__fill"></span>
+          </div>
+        </div>
+
+        <div class="card dash-progress__card">
+          <h3 class="dash-progress__subtitle">البطاقات والمهام</h3>
+          <dl class="dash-stats">
+            <div class="dash-stat">
+              <dt>بطاقات للمراجعة</dt>
+              <dd data-slot="flip-pending">…</dd>
+            </div>
+            <div class="dash-stat">
+              <dt>بطاقات متقنة</dt>
+              <dd data-slot="flip-mastered">…</dd>
+            </div>
+            <div class="dash-stat">
+              <dt>إنجاز مهام الأسبوع</dt>
+              <dd data-slot="tasks-week">…</dd>
+            </div>
+            <div class="dash-stat">
+              <dt>مهام ربط · 14 يومًا</dt>
+              <dd data-slot="rabt-tasks">…</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="card dash-progress__card">
+          <h3 class="dash-progress__subtitle">أحدث النشاطات</h3>
+          <ul class="dash-recent" data-slot="recent">
+            <li class="dash-recent__empty">جارٍ التحميل…</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+  </template>
+
+<template id="item-task">
+    <li class="task-item" tabindex="-1">
+    <div class="task-item__main">
+        <p class="task-item__title" data-slot="title"></p>
+        <p class="task-item__meta" data-slot="meta"></p>
+      </div>
+      <span class="task-item__badge" data-slot="badge" hidden>متجاهَل</span>
+      <div class="task-item__actions" data-slot="actions"></div>
+    </li>
+  </template>
+
+  <template id="sheet-task-create">
+    <div class="bottom-sheet__backdrop" data-action="dismiss"></div>
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="task-sheet-title">
+      <h2 class="bottom-sheet__title" id="task-sheet-title">مهمة جديدة</h2>
+      <form class="bottom-sheet__body form" id="task-create-form" novalidate>
+        <div class="form__field">
+          <label class="form__label" for="task-create-type">نوع المهمة</label>
+          <select class="form__input" id="task-create-type" name="task_type_id" required></select>
+          <p class="form__error" data-error-for="task_type_id" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="task-create-duration">المدة (دقائق)</label>
+          <input class="form__input" id="task-create-duration" name="duration_minutes" type="number"
+                 inputmode="numeric" min="1" max="1440" step="1" required>
+          <p class="form__error" data-error-for="duration_minutes" hidden></p>
+        </div>
+        <div class="form__field" data-slot="title-field" hidden>
+          <label class="form__label" for="task-create-title">عنوان المهمة</label>
+          <input class="form__input" id="task-create-title" name="title" type="text" maxlength="150">
+          <p class="form__error" data-error-for="title" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="task-create-notes">ملاحظات (اختياري)</label>
+          <input class="form__input" id="task-create-notes" name="notes" type="text" maxlength="255">
+          <p class="form__error" data-error-for="notes" hidden></p>
+        </div>
+        <div class="bottom-sheet__actions">
+          <button class="btn btn--primary btn--block" type="submit">إضافة المهمة</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="sheet-settings">
+    <div class="bottom-sheet__backdrop" data-action="dismiss"></div>
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="settings-sheet-title">
+      <h2 class="bottom-sheet__title" id="settings-sheet-title">الإعدادات</h2>
+      <div class="bottom-sheet__body settings-sheet">
+
+        <section class="settings-group" aria-labelledby="settings-display-title">
+          <h3 class="settings-group__title" id="settings-display-title">العرض والصوت</h3>
+          <div class="pref-row">
+            <span class="pref-row__label" id="pref-awake-label">إبقاء الشاشة مضاءة</span>
+            <button class="pref-switch" type="button" role="switch" aria-checked="false"
+                    aria-labelledby="pref-awake-label" data-pref="awake"></button>
+          </div>
+          <div class="pref-row">
+            <span class="pref-row__label" id="pref-sound-label">الصوت</span>
+            <button class="pref-switch" type="button" role="switch" aria-checked="false"
+                    aria-labelledby="pref-sound-label" data-pref="sound"></button>
+          </div>
+          <div class="pref-row">
+            <span class="pref-row__label" id="pref-theme-label">وضع العرض</span>
+            <button class="btn pref-cycle" type="button" data-pref="theme">
+              <span data-slot="theme-label">تلقائي</span>
+            </button>
+          </div>
+          <div class="pref-row" data-slot="notify-row" hidden>
+            <span class="pref-row__label" id="pref-notify-label">التنبيهات المكتبية</span>
+            <button class="pref-switch" type="button" role="switch" aria-checked="false"
+                    aria-labelledby="pref-notify-label" data-pref="notify"></button>
+          </div>
+        </section>
+
+        <section class="settings-group" aria-labelledby="settings-reminders-title" data-slot="reminders-section" hidden>
+          <h3 class="settings-group__title" id="settings-reminders-title">تذكيرات يومية</h3>
+          <div class="pref-row">
+            <label class="pref-row__label" for="pref-reminder-time">وقت التذكير</label>
+            <input class="form__input pref-time" type="time" id="pref-reminder-time" value="18:00" step="60" dir="ltr">
+          </div>
+          <div class="pref-row">
+            <span class="pref-row__label" id="pref-remind-revision-label">جدولة المراجعة</span>
+            <button class="pref-switch" type="button" role="switch" aria-checked="true"
+                    aria-labelledby="pref-remind-revision-label" data-remind="revision"></button>
+          </div>
+          <div class="pref-row">
+            <span class="pref-row__label" id="pref-remind-rabt-label">الربط</span>
+            <button class="pref-switch" type="button" role="switch" aria-checked="true"
+                    aria-labelledby="pref-remind-rabt-label" data-remind="rabt"></button>
+          </div>
+          <div class="pref-row">
+            <span class="pref-row__label" id="pref-remind-memorization-label">الحفظ</span>
+            <button class="pref-switch" type="button" role="switch" aria-checked="true"
+                    aria-labelledby="pref-remind-memorization-label" data-remind="memorization"></button>
+          </div>
+          <div class="pref-row">
+            <span class="pref-row__label" id="pref-remind-flip-label">بطاقات المراجعة</span>
+            <button class="pref-switch" type="button" role="switch" aria-checked="true"
+                    aria-labelledby="pref-remind-flip-label" data-remind="flip"></button>
+          </div>
+          <div class="pref-row">
+            <span class="pref-row__label" id="pref-remind-tasks-label">مهام اليوم</span>
+            <button class="pref-switch" type="button" role="switch" aria-checked="true"
+                    aria-labelledby="pref-remind-tasks-label" data-remind="tasks"></button>
+          </div>
+          <p class="pref-hint">تُرسل التذكيرات مرة واحدة يوميًا أثناء فتح التطبيق.</p>
+        </section>
+
+        <section class="settings-group" aria-labelledby="settings-language-title">
+          <h3 class="settings-group__title" id="settings-language-title">اللغة</h3>
+          <div class="pref-options" role="radiogroup" aria-label="لغة الواجهة">
+            <button class="pref-option" type="button" role="radio" aria-checked="true" data-locale="ar">العربية</button>
+            <button class="pref-option" type="button" role="radio" aria-checked="false" data-locale="en" disabled>الإنجليزية (قريباً)</button>
+          </div>
+        </section>
+
+        <section class="settings-group" aria-labelledby="settings-revision-title">
+          <h3 class="settings-group__title" id="settings-revision-title">تفضيلات المراجعة</h3>
+          <div class="pref-row">
+            <label class="pref-row__label" for="pref-revision-unit">الهدف اليومي الافتراضي</label>
+            <button class="btn pref-cycle" type="button" id="pref-revision-unit" data-pref="rev-unit">
+              <span data-slot="rev-unit-label">صفحة</span>
+            </button>
+          </div>
+          <div class="form__field">
+            <label class="form__label" for="pref-revision-amount">الكمية</label>
+            <input class="form__input" id="pref-revision-amount" name="daily_revision_amount" type="number"
+                   min="0.1" max="9999" step="0.1" inputmode="decimal" value="1"
+                   aria-describedby="pref-revision-hint">
+            <p class="form__error" data-error-for="daily_revision_amount" hidden></p>
+          </div>
+          <p class="pref-hint" id="pref-revision-hint">
+            يُستخدم هذا الهدف عند إنشاء خطة مراجعة جديدة فقط لا تُغيَّر الخطط أو الدورات قائمة؛ غيّره متى شئت دون أثر على تقدّمك.
+          </p>
+          <button class="btn btn--primary btn--block" type="button" data-action="save-revision">حفظ تفضيلات المراجعة</button>
+        </section>
+
+        <section class="settings-group" aria-labelledby="settings-account-title">
+          <h3 class="settings-group__title" id="settings-account-title">الحساب</h3>
+          <p class="pref-account" data-slot="account" dir="ltr"></p>
+          <form class="form" id="profile-form" novalidate>
+            <div class="form__field">
+              <label class="form__label" for="profile-display-name">الاسم المعروض</label>
+              <input class="form__input" id="profile-display-name" name="display_name" type="text"
+                     maxlength="100" autocomplete="nickname">
+              <p class="form__error" data-error-for="display_name" hidden></p>
+            </div>
+            <div class="form__field">
+              <label class="form__label" for="profile-email">البريد الإلكتروني</label>
+              <input class="form__input" id="profile-email" name="email" type="email"
+                     maxlength="190" autocomplete="email" dir="ltr">
+              <p class="form__error" data-error-for="email" hidden></p>
+            </div>
+            <button class="btn btn--primary btn--block" type="submit">حفظ بيانات الحساب</button>
+          </form>
+          <form class="form" id="password-form" novalidate>
+            <div class="form__field">
+              <label class="form__label" for="password-current">كلمة المرور الحالية</label>
+          <input class="form__input" id="password-current" name="current_password" type="password" dir="ltr"
+                 minlength="8" maxlength="72" autocomplete="current-password">
+              <p class="form__error" data-error-for="current_password" hidden></p>
+            </div>
+            <div class="form__field">
+              <label class="form__label" for="password-new">كلمة المرور الجديدة</label>
+          <input class="form__input" id="password-new" name="new_password" type="password" dir="ltr"
+                 minlength="8" maxlength="72" autocomplete="new-password">
+              <p class="form__error" data-error-for="new_password" hidden></p>
+            </div>
+            <button class="btn btn--block" type="submit">تغيير كلمة المرور</button>
+            <p class="pref-hint">بعد التغيير تُلغى جميع الجلسات وستحتاج إلى تسجيل الدخول من جديد.</p>
+          </form>
+        </section>
+
+        <section class="settings-group" aria-labelledby="settings-privacy-title">
+          <h3 class="settings-group__title" id="settings-privacy-title">الخصوصية والبيانات</h3>
+          <button class="btn btn--block" type="button" data-action="export">تصدير بياناتي (JSON)</button>
+          <button class="btn btn--block" type="button" data-action="export-csv">تصدير بياناتي (CSV)</button>
+          <button class="btn btn--danger btn--block" type="button" data-action="delete-account">حذف الحساب</button>
+          <p class="pref-hint">
+            التصدير يضم بياناتك الشخصية فقط دون كلمات المرور أو الجلسات، وملف CSV مناسب لبرامج الجداول. الحذف يزيل هويتك ويُلغي كل الجلسات ثم يُغلق الحساب نهائياً.
+          </p>
+        </section>
+
+        <div class="bottom-sheet__actions">
+          <button class="btn btn--danger btn--block" type="button" data-action="logout">تسجيل الخروج</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="cancel">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template id="modal-delete-account">
+    <div class="modal__backdrop" data-action="dismiss"></div>
+    <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="delete-account-title"
+         aria-describedby="delete-account-desc">
+      <h2 class="modal__title" id="delete-account-title">حذف الحساب</h2>
+      <p class="modal__text" id="delete-account-desc">
+        سيُزال هويتك وتُلغى جميع جلساتك ولن تتمكن من تسجيل الدخول مجدداً. أدخل كلمة المرور للتأكيد — لا يمكن التراجع.
+      </p>
+      <form class="form" id="delete-account-form" novalidate>
+        <div class="form__field">
+          <label class="form__label" for="delete-account-password">كلمة المرور</label>
+          <input class="form__input" id="delete-account-password" name="password" type="password" dir="ltr"
+                 minlength="8" maxlength="72" autocomplete="current-password">
+          <p class="form__error" data-error-for="password" hidden></p>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--danger" type="submit">حذف نهائي</button>
+          <button class="btn btn--ghost" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="sheet-establish">
+    <div class="bottom-sheet__backdrop" data-action="dismiss"></div>
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="establish-sheet-title">
+      <h2 class="bottom-sheet__title" id="establish-sheet-title">إنشاء نطاق الحفظ</h2>
+      <form class="bottom-sheet__body form" id="establish-form" novalidate>
+        <p class="form__hint">
+          حدّد أول صفحة في نطاق حفك وآخر صفحة وصلت إليها الآن؛ يُسجَّل ذلك كنطاقك الحالي دون تخمين أي صفحات.
+        </p>
+        <div class="form__field">
+          <label class="form__label" for="establish-start">أول صفحة محفوظة</label>
+          <input class="form__input" id="establish-start" name="memorized_start_page" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="memorized_start_page" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="establish-boundary">حد الحفظ الحالي (آخر صفحة محفوظة)</label>
+          <input class="form__input" id="establish-boundary" name="current_boundary_page" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="current_boundary_page" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="establish-note">ملاحظة (اختياري)</label>
+          <input class="form__input" id="establish-note" name="note" type="text" maxlength="255">
+          <p class="form__error" data-error-for="note" hidden></p>
+        </div>
+        <div class="bottom-sheet__actions">
+          <button class="btn btn--primary btn--block" type="submit">إنشاء النطاق</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="sheet-mark">
+    <div class="bottom-sheet__backdrop" data-action="dismiss"></div>
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="mark-sheet-title">
+      <h2 class="bottom-sheet__title" id="mark-sheet-title">تسجيل صفحات محفوظة</h2>
+      <form class="bottom-sheet__body form" id="mark-form" novalidate>
+        <p class="form__hint">
+          سجّل النطاق الذي حفظته اليوم؛ إن تجاوزت النهاية حدّك الحالي يتقدم الحد تلقائياً معها.
+        </p>
+        <div class="form__field">
+          <label class="form__label" for="mark-start">من صفحة</label>
+          <input class="form__input" id="mark-start" name="start_page" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="start_page" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="mark-end">إلى صفحة</label>
+          <input class="form__input" id="mark-end" name="end_page" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="end_page" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="mark-note">ملاحظة (اختياري)</label>
+          <input class="form__input" id="mark-note" name="note" type="text" maxlength="255">
+          <p class="form__error" data-error-for="note" hidden></p>
+        </div>
+        <div class="bottom-sheet__actions">
+          <button class="btn btn--primary btn--block" type="submit">تسجيل الصفحات</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="sheet-correct">
+    <div class="bottom-sheet__backdrop" data-action="dismiss"></div>
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="correct-sheet-title">
+      <h2 class="bottom-sheet__title" id="correct-sheet-title">تصحيح حد الحفظ</h2>
+      <form class="bottom-sheet__body form" id="correct-form" novalidate>
+        <p class="form__hint">
+          يُسجَّل التصحيح في سجل الحدود دون مسح السابق؛ عند تقليص النطاق تُوقف خطط المراجعة التي تتجاوزه.
+        </p>
+        <div class="form__field">
+          <label class="form__label" for="correct-boundary">حد الحفظ الصحيح</label>
+          <input class="form__input" id="correct-boundary" name="current_boundary_page" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="current_boundary_page" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__check" for="correct-confirm">
+            <input class="form__check-input" id="correct-confirm" name="confirm" type="checkbox" required>
+            <span>أؤكد تعديل حد الحفظ</span>
+          </label>
+          <p class="form__error" data-error-for="confirm" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="correct-note">ملاحظة (اختياري)</label>
+          <input class="form__input" id="correct-note" name="note" type="text" maxlength="255">
+          <p class="form__error" data-error-for="note" hidden></p>
+        </div>
+        <div class="bottom-sheet__actions">
+          <button class="btn btn--primary btn--block" type="submit">حفظ التصحيح</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="view-flip-cards">
+    <section class="flip-view" aria-labelledby="flip-title">
+      <div class="flip-view__head">
+        <h1 class="flip-view__title" id="flip-title">بطاقات الأخطاء</h1>
+        <p class="flip-view__meta">علّم خطأً في موضع قرآني وتابع مراجعته حتى إتقانه.</p>
+      </div>
+      <div class="flip-view__toolbar">
+        <button class="btn btn--primary" type="button" data-action="flag-card">علّم خطأً</button>
+        <a class="btn btn--ghost" href="#/">العودة إلى الرئيسية</a>
+      </div>
+      <div data-slot="status"></div>
+      <section class="flip-section" aria-labelledby="flip-queue-title">
+        <h2 class="flip-section__title" id="flip-queue-title">قائمة المراجعة</h2>
+        <ul class="flip-list" data-slot="queue"></ul>
+        <p class="state-card__text" data-slot="queue-empty" hidden>لا توجد بطاقات في قائمة المراجعة.</p>
+      </section>
+      <section class="flip-section" aria-labelledby="flip-all-title">
+        <h2 class="flip-section__title" id="flip-all-title">كل البطاقات</h2>
+        <ul class="flip-list" data-slot="all"></ul>
+        <p class="state-card__text" data-slot="all-empty" hidden>لا توجد بطاقات بعد — علّم أول خطأ لتبدأ.</p>
+      </section>
+    </section>
+  </template>
+
+  <template id="item-flip-card">
+    <li class="flip-item" tabindex="-1">
+      <div class="flip-item__main">
+        <p class="flip-item__title" data-slot="title"></p>
+        <p class="flip-item__meta" data-slot="meta"></p>
+        <p class="flip-item__note" data-slot="note" hidden></p>
+      </div>
+      <span class="flip-item__badge" data-slot="badge" hidden></span>
+      <div class="flip-item__actions" data-slot="actions"></div>
+    </li>
+  </template>
+
+  <template id="sheet-flag-card">
+    <div class="bottom-sheet__backdrop" data-action="dismiss"></div>
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="flag-sheet-title">
+      <h2 class="bottom-sheet__title" id="flag-sheet-title">علّم خطأً</h2>
+      <form class="bottom-sheet__body form" id="flag-card-form" novalidate>
+        <p class="form__hint">أدخل الأرقام كما في مصحفك؛ يتحقق الخادم من الموضع قبل الحفظ.</p>
+        <div class="form__field">
+          <label class="form__label" for="flag-surah">رقم السورة</label>
+          <input class="form__input" id="flag-surah" name="surah_number" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="surah_number" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-ayah">رقم الآية</label>
+          <input class="form__input" id="flag-ayah" name="ayah_number" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="ayah_number" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-page">رقم الصفحة</label>
+          <input class="form__input" id="flag-page" name="page_number" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="page_number" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-category">نوع الخطأ</label>
+          <select class="form__input" id="flag-category" name="category_id" required></select>
+          <p class="form__error" data-error-for="category_id" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-note">وصف الخطأ</label>
+          <input class="form__input" id="flag-note" name="error_note" type="text" maxlength="500" required>
+          <p class="form__error" data-error-for="error_note" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-context">السياق (اختياري)</label>
+          <input class="form__input" id="flag-context" name="context_note" type="text" maxlength="500">
+          <p class="form__error" data-error-for="context_note" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-severity">الشدة</label>
+          <select class="form__input" id="flag-severity" name="severity">
+            <option value="low">خفيفة</option>
+            <option value="medium" selected>متوسطة</option>
+            <option value="high">شديدة</option>
+          </select>
+          <p class="form__error" data-error-for="severity" hidden></p>
+        </div>
+        <div class="bottom-sheet__actions">
+          <button class="btn btn--primary btn--block" type="submit">حفظ البطاقة</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="sheet-review-card">
+    <div class="bottom-sheet__backdrop" data-action="dismiss"></div>
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="review-sheet-title">
+      <h2 class="bottom-sheet__title" id="review-sheet-title">مراجعة البطاقة</h2>
+      <form class="bottom-sheet__body form" id="review-card-form" novalidate>
+        <p class="form__hint" data-slot="review-card-meta"></p>
+        <fieldset class="form__field form__fieldset">
+          <legend class="form__label">ما نتيجة المحاولة؟</legend>
+          <label class="form__check" for="review-recalled">
+            <input class="form__check-input" id="review-recalled" name="result" type="radio" value="recalled" required>
+            <span>استرجعت</span>
+          </label>
+          <label class="form__check" for="review-partial">
+            <input class="form__check-input" id="review-partial" name="result" type="radio" value="partial">
+            <span>جزئياً</span>
+          </label>
+          <label class="form__check" for="review-forgotten">
+            <input class="form__check-input" id="review-forgotten" name="result" type="radio" value="forgotten">
+            <span>نسيتها</span>
+          </label>
+          <p class="form__error" data-error-for="result" hidden></p>
+        </fieldset>
+        <div class="form__field">
+          <label class="form__label" for="review-notes">ملاحظة (اختياري)</label>
+          <input class="form__input" id="review-notes" name="notes" type="text" maxlength="255">
+          <p class="form__error" data-error-for="notes" hidden></p>
+        </div>
+        <div class="bottom-sheet__actions">
+          <button class="btn btn--primary btn--block" type="submit">تسجيل المراجعة</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="modal-delete-card">
+    <div class="modal__backdrop" data-action="dismiss"></div>
+    <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="delete-card-title"
+         aria-describedby="delete-card-desc">
+      <h2 class="modal__title" id="delete-card-title">حذف البطاقة</h2>
+      <p class="modal__text" id="delete-card-desc">
+        ستُحذف البطاقة مع سجل مراجعتها بالكامل — لا يمكن التراجع.
+      </p>
+      <form class="form" id="delete-card-form" novalidate>
+        <div class="modal__actions">
+          <button class="btn btn--danger" type="submit">حذف نهائي</button>
+          <button class="btn btn--ghost" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="view-soon">
+    <section class="soon-view card state-card" aria-labelledby="soon-title">
+      <h1 class="state-card__title" id="soon-title" data-slot="title"></h1>
+      <p class="state-card__text" data-slot="text"></p>
+      <a class="btn btn--primary" href="#/">العودة إلى الرئيسية</a>
+    </section>
+  </template>
+
+  <script type="module" src="/js/core/app.js"></script>
+</body>
+</html>

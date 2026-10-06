@@ -1,0 +1,283 @@
+{
+    "tool": "tools/quran-data/verify.php",
+    "tool_version": "1",
+    "generated_at": "2026-10-06T11:10:26+00:00",
+    "verdict": "PASS",
+    "sources": [
+        {
+            "key": "tanzil_metadata",
+            "role": "primary",
+            "url": "https://tanzil.net/res/text/metadata/quran-data.xml",
+            "file": "quran-data.xml",
+            "version": "1.0",
+            "sha256": "8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a",
+            "bytes": 77234
+        },
+        {
+            "key": "alquran_quran",
+            "role": "cross-check",
+            "url": "https://api.alquran.cloud/v1/quran/quran-uthmani",
+            "file": "alquran-quran-uthmani.json",
+            "version": "",
+            "sha256": "0df03e1d6da4fc8138208fec1688f2b416f0dd4ebbd514179f3e5e0fbaf4195f",
+            "bytes": 2109200
+        },
+        {
+            "key": "alquran_meta",
+            "role": "cross-check",
+            "url": "https://api.alquran.cloud/v1/meta",
+            "file": "alquran-meta.json",
+            "version": "",
+            "sha256": "9444749ea0b261054d4f744d4aec38286e666b25f1cf8aa78ce0a24f789caa5c",
+            "bytes": 53035
+        }
+    ],
+    "processed": [
+        {
+            "file": "surahs.json",
+            "sha256": "022f7401ce101d5bf07796943478c8a621c3037e48a18972376fa91fc18b350c"
+        },
+        {
+            "file": "ayahs.json",
+            "sha256": "63c71bfc5a9c7b93e85486914f6df20ce10e24d673c53b416ed2773d1952feed"
+        },
+        {
+            "file": "pages.json",
+            "sha256": "babdb79f1c389dac85c872ac93eb89fa2ec78d4683925164db7706a8a92cfc24"
+        },
+        {
+            "file": "page_ayahs.json",
+            "sha256": "869e26da6fe8988eb2e0bc900456eaa854f1ad36d7d9cf7cca8fa8e3d03266dc"
+        },
+        {
+            "file": "divisions.json",
+            "sha256": "2b8af462797456909683c63563fc43f2032b545195ad6e64a56a548e1bccb748"
+        },
+        {
+            "file": "division_types.json",
+            "sha256": "43da2f95c4b8b490ef811d2d8860150209caf1b6a9aaf79ab60c9560f141b71b"
+        },
+        {
+            "file": "meta.json",
+            "sha256": "cd8343ec6d226cbd0cf9854e40d87a0cb550b9d6b961e441803ecda94ddb9178"
+        }
+    ],
+    "counts": {
+        "surahs": 114,
+        "ayahs": 6236,
+        "pages": 604,
+        "segments": 6236,
+        "divisions": {
+            "juz": 30,
+            "hizb": 60,
+            "rub": 240
+        },
+        "division_types": 3
+    },
+    "checks": [
+        {
+            "name": "§8.4 round-trip determinism: processed files byte-identical to re-derivation",
+            "passed": true,
+            "detail": "all 7 processed files byte-identical"
+        },
+        {
+            "name": "§5.2 ayah_index dense 1..N in surah order",
+            "passed": true,
+            "detail": "6236 ayah rows, dense 1..6236"
+        },
+        {
+            "name": "§5.1 surah numbers contiguous 1..114 + per-surah ayah counts",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.1/§5.12 total ayahs = source-stated total (invariant 6236)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.3 pages contiguous 1..604 + start/end ayahs resolve",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.5 segments: dense segment_index, order 1..k per page",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.6 quran_pages start/end exactly match segment min/max",
+            "passed": true,
+            "detail": "6236 segments agree with 604 pages"
+        },
+        {
+            "name": "§5.4 page adjacency: next page start follows previous end (+0/+1)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.4/§5.5 continuation flags agree with segment boundaries",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.7/§5.12 divisions: exclusive contiguous partition per type + counts = source",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.8 nesting rub⊂hizb⊂juz + parent = numbering arithmetic + per_parent",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.9 division page spans = first pages of start/end ayahs; ranges covered by segments",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§6 surah begin/end boundaries: spans + start/end pages vs segments",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.10 required fields present, no NULL boundaries, enum values valid",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§6 page/surah/division transitions: contiguous, shared or page-break (counts: surah shared=58 break=55; juz shared=4 adj=25; hizb shared=22 adj=37; rub shared=168 adj=71)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "§5.12 recorded totals match actual rows (meta + division types)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "XS per-ayah page mapping agrees (alquran start pages vs segments, 6236 ayahs)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "XS global + per-surah numbering aligned (alquran vs processed)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "XS surah list: ayah counts + revelation type (both sources, 114)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "XS juz start refs = alquran meta (30)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "XS rub start refs = alquran meta (240)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "XS page start refs = alquran meta (604)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "XS per-ayah juz membership (alquran field vs ordinal ranges, 6236)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "XS per-ayah rub membership (alquran field vs ordinal ranges, 6236)",
+            "passed": true,
+            "detail": "ok"
+        },
+        {
+            "name": "XS ayah totals agree across both sources (6236)",
+            "passed": true,
+            "detail": "ok"
+        }
+    ],
+    "checks_summary": {
+        "total": 25,
+        "passed": 25,
+        "failed": 0
+    },
+    "spot_check": {
+        "seed": "744e7bb03843dff7",
+        "method": "deterministic offsets derived from source SHA-256 (stable across re-runs)",
+        "locations": [
+            {
+                "kind": "juz 3",
+                "identifier": "juz 3",
+                "start": "2:253",
+                "end": "3:92",
+                "start_page": 42,
+                "end_page": 62
+            },
+            {
+                "kind": "juz 6",
+                "identifier": "juz 6",
+                "start": "4:148",
+                "end": "5:81",
+                "start_page": 102,
+                "end_page": 121
+            },
+            {
+                "kind": "juz 3",
+                "identifier": "juz 3",
+                "start": "2:253",
+                "end": "3:92",
+                "start_page": 42,
+                "end_page": 62
+            },
+            {
+                "kind": "hizb 31",
+                "identifier": "hizb 31",
+                "start": "18:75",
+                "end": "19:98",
+                "start_page": 302,
+                "end_page": 312
+            },
+            {
+                "kind": "rub 158",
+                "identifier": "rub 158",
+                "start": "28:76",
+                "end": "28:88",
+                "start_page": 394,
+                "end_page": 396
+            },
+            {
+                "kind": "rub 28",
+                "identifier": "rub 28",
+                "start": "3:153",
+                "end": "3:170",
+                "start_page": 69,
+                "end_page": 72
+            },
+            {
+                "kind": "surah start",
+                "identifier": "surah 14",
+                "start": "14:1",
+                "end": "14:52",
+                "start_page": 255,
+                "end_page": 261
+            },
+            {
+                "kind": "surah start",
+                "identifier": "surah 70",
+                "start": "70:1",
+                "end": "70:44",
+                "start_page": 568,
+                "end_page": 570
+            }
+        ],
+        "performed": false,
+        "performed_by": null,
+        "recorded_at": null,
+        "result": "PENDING: maintainer must confirm each location against the printed Madinah Mushaf (data-architecture §8.5); automation cannot replace this check"
+    }
+}

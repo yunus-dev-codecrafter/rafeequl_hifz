@@ -1,0 +1,30 @@
+.auth-view {
+  max-inline-size: 24rem;
+  margin-inline: auto;
+  padding-block-start: var(--space-5);
+}
+
+.auth-view__title {
+  text-align: center;
+}
+
+.auth-view__tagline {
+  margin-block: var(--space-2) var(--space-5);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.auth-view .form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+}
+
+.auth-view__switch {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}

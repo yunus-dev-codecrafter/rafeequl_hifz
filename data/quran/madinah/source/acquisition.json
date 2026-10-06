@@ -1,0 +1,42 @@
+{
+    "acquired_at": "2026-10-05T19:43:46+00:00",
+    "tool": "tools/quran-data/acquire.php v1",
+    "sources": [
+        {
+            "key": "tanzil_metadata",
+            "role": "primary",
+            "url": "https://tanzil.net/res/text/metadata/quran-data.xml",
+            "file": "quran-data.xml",
+            "version": "1.0",
+            "sha256": "8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a",
+            "bytes": 77234,
+            "license": "CC BY 3.0 + Tanzil terms of use",
+            "license_url": "https://tanzil.net/docs/text_license",
+            "mode": "verified existing"
+        },
+        {
+            "key": "alquran_quran",
+            "role": "cross-check",
+            "url": "https://api.alquran.cloud/v1/quran/quran-uthmani",
+            "file": "alquran-quran-uthmani.json",
+            "version": "API v1",
+            "sha256": "0df03e1d6da4fc8138208fec1688f2b416f0dd4ebbd514179f3e5e0fbaf4195f",
+            "bytes": 2109200,
+            "license": "alquran.cloud terms and conditions (fair use with attribution)",
+            "license_url": "https://alquran.cloud/terms-and-conditions",
+            "mode": "verified existing"
+        },
+        {
+            "key": "alquran_meta",
+            "role": "cross-check",
+            "url": "https://api.alquran.cloud/v1/meta",
+            "file": "alquran-meta.json",
+            "version": "API v1",
+            "sha256": "9444749ea0b261054d4f744d4aec38286e666b25f1cf8aa78ce0a24f789caa5c",
+            "bytes": 53035,
+            "license": "alquran.cloud terms and conditions (fair use with attribution)",
+            "license_url": "https://alquran.cloud/terms-and-conditions",
+            "mode": "verified existing"
+        }
+    ]
+}

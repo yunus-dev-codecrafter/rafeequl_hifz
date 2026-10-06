@@ -1,0 +1,22 @@
+{
+    "dataset_name": "Madinah Mushaf canonical structure (Rafeequl Hifz)",
+    "dataset_version": "tanzil-quran-metadata-1.0",
+    "dataset_source_name": "Tanzil Quran Metadata (quran-data.xml)",
+    "dataset_source_url": "https://tanzil.net/res/text/metadata/quran-data.xml",
+    "dataset_source_license": "CC BY 3.0 + Tanzil terms of use",
+    "dataset_source_license_url": "https://tanzil.net/docs/text_license",
+    "dataset_source_sha256": "8867c1d88191472adec9db694b3cd9f135b1a2ef580574d32cf888dcb22c5c7a",
+    "dataset_crosscheck_name": "alquran.cloud full Quran (quran-uthmani edition) + alquran.cloud meta",
+    "dataset_crosscheck_urls": "https://api.alquran.cloud/v1/quran/quran-uthmani; https://api.alquran.cloud/v1/meta",
+    "dataset_crosscheck_sha256": "{\n    \"alquran-quran-uthmani.json\": \"0df03e1d6da4fc8138208fec1688f2b416f0dd4ebbd514179f3e5e0fbaf4195f\",\n    \"alquran-meta.json\": \"9444749ea0b261054d4f744d4aec38286e666b25f1cf8aa78ce0a24f789caa5c\"\n}\n",
+    "count_surahs": "114",
+    "count_ayahs": "6236",
+    "count_pages": "604",
+    "count_segments": "6236",
+    "count_juz": "30",
+    "count_hizb": "60",
+    "count_rub": "240",
+    "count_division_types": "3",
+    "normalizer": "tools/quran-data/normalize.php v1",
+    "structure_notes": "page starts and ayah-page segments derived from Tanzil page starts resolved against alquran per-ayah start pages; hizb starts = every 4th rub start (Tanzil publishes rub starts only); division ends are exclusive (end(n)=start(n+1)-1)"
+}

@@ -1,0 +1,26 @@
+[
+    {
+        "type_key": "juz",
+        "name_arabic": "الجزء",
+        "name_english": "Juz",
+        "parent_type_key": null,
+        "per_parent": null,
+        "count_expected": 30
+    },
+    {
+        "type_key": "hizb",
+        "name_arabic": "الحزب",
+        "name_english": "Hizb",
+        "parent_type_key": "juz",
+        "per_parent": 2,
+        "count_expected": 60
+    },
+    {
+        "type_key": "rub",
+        "name_arabic": "الربع",
+        "name_english": "Rub",
+        "parent_type_key": "hizb",
+        "per_parent": 4,
+        "count_expected": 240
+    }
+]

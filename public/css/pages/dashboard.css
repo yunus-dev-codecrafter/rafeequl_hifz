@@ -1,0 +1,401 @@
+/* Main dashboard (Prompt 15): hero identity, controls, summary, tasks, activities. */
+
+.dash {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* --- hero ---------------------------------------------------------------- */
+
+.dash-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.dash-hero__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dash-hero__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.dash-hero__title {
+  font-size: var(--font-size-xl);
+}
+
+.dash-hero__latin {
+  direction: ltr;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.dash-hero__date {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* --- controls ------------------------------------------------------------ */
+
+.dash-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.dash-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-block-size: 4.25rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.dash-control:hover:not(:disabled) {
+  background: var(--color-surface-2);
+}
+
+.dash-control[aria-pressed='true'] {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.dash-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dash-control__icon {
+  display: inline-flex;
+}
+
+/* --- summary ------------------------------------------------------------- */
+
+.dash-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dash-summary__message {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  line-height: var(--line-tight);
+  color: var(--color-primary);
+}
+
+.dash-summary__heading {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+@media (min-width: 30rem) {
+  .dash-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.dash-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  text-align: center;
+}
+
+.dash-stat dt {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.dash-stat dd {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  line-height: var(--line-tight);
+}
+
+/* --- task list ----------------------------------------------------------- */
+
+.dash-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dash-tasks__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.dash-tasks__title {
+  font-size: var(--font-size-lg);
+}
+
+.dash-tasks__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dash-loading {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding-block: var(--space-4);
+}
+
+/* --- quran activities ---------------------------------------------------- */
+
+.dash-quran {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dash-quran__title {
+  font-size: var(--font-size-lg);
+}
+
+/* --- progress analytics (Prompt 22) ------------------------------------- */
+
+.dash-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dash-progress__title {
+  font-size: var(--font-size-lg);
+}
+
+.dash-progress__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.dash-progress__subtitle {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.dash-recent {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-recent__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.dash-recent__item:last-child {
+  border-block-end: none;
+}
+
+.dash-recent__text {
+  font-size: var(--font-size-sm);
+}
+
+.dash-recent__time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.dash-recent__empty {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding-block: var(--space-2);
+}
+
+/* --- settings sheet ------------------------------------------------------ */
+
+.settings-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-block-end: var(--space-4);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.settings-group:last-of-type {
+  padding-block-end: 0;
+  border-block-end: none;
+}
+
+.settings-group__title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+}
+
+.pref-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: var(--line-normal);
+}
+
+.pref-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pref-option {
+  min-block-size: var(--touch-target);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.pref-option[aria-checked='true'] {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pref-option:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-block-size: 2.75rem;
+}
+
+.pref-row__label {
+  font-weight: 600;
+}
+
+.pref-switch {
+  position: relative;
+  inline-size: 3rem;
+  block-size: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-muted-soft);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.pref-switch::before {
+  /* Invisible hit-area: visual knob stays 28px, target reaches 44px. */
+  content: '';
+  position: absolute;
+  inset: -0.5rem;
+}
+
+.pref-switch::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 0.2rem;
+  inset-inline-start: 0.2rem;
+  inline-size: 1.35rem;
+  block-size: 1.35rem;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: inset-inline-start var(--transition-fast);
+}
+
+.pref-switch[aria-checked='true'] {
+  background: var(--color-primary);
+}
+
+.pref-switch[aria-checked='true']::after {
+  inset-inline-start: 1.45rem;
+}
+
+.pref-cycle {
+  min-block-size: var(--touch-target);
+  font-size: var(--font-size-sm);
+}
+
+.pref-time {
+  /* Override .form__input's full width so the row stays label + control. */
+  inline-size: auto;
+  min-inline-size: 6.75rem;
+  min-block-size: var(--touch-target);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.pref-account {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* --- placeholder screen -------------------------------------------------- */
+
+.soon-view {
+  margin-block-start: var(--space-5);
+}

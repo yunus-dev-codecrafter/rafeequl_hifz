@@ -1,0 +1,36 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+/vendor/
+composer.phar
+
+# Storage (runtime output)
+/storage/logs/*
+/storage/cache/*
+/storage/sessions/*
+!/storage/logs/.gitkeep
+!/storage/cache/.gitkeep
+!/storage/sessions/.gitkeep
+
+# Uploads (user-generated content)
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+# Quran dataset binaries (kept under version control only if a later prompt authorizes it)
+/data/quran/madinah/source/*.zip
+/database/backups/*
+
+# Generated deployment bundle (Prompt 27 - rebuild: php tools/deploy/build-bundle.php --force)
+/deploy/
+
+# OS / editor artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.log

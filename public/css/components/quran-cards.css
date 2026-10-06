@@ -1,0 +1,49 @@
+/* Quran activity cards: link cards in a responsive grid (rail: revision, ربط, flip cards). */
+
+.dash-activities {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 30rem) {
+  .dash-activities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.activity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  block-size: 100%;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: border-color var(--transition-fast);
+}
+
+a.activity:hover,
+a.activity:focus-visible {
+  border-color: var(--color-primary);
+  text-decoration: none;
+}
+
+.activity__title {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+.activity__text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.activity__cta {
+  margin-block-start: auto;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}

@@ -1,0 +1,44 @@
+.bottom-sheet__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  background: var(--color-backdrop);
+}
+
+.bottom-sheet {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: calc(var(--z-sheet) + 1);
+  max-block-size: 85vh;
+  overflow-y: auto;
+  padding: var(--space-5) var(--space-4) var(--space-6);
+  padding-block-end: calc(var(--space-6) + env(safe-area-inset-bottom));
+  border-start-start-radius: var(--radius-lg);
+  border-start-end-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  animation: sheet-up var(--transition-fast) both;
+}
+
+.bottom-sheet__title {
+  margin-block-end: var(--space-4);
+  font-size: var(--font-size-lg);
+}
+
+.bottom-sheet__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

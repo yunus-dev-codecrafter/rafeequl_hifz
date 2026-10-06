@@ -1,0 +1,17 @@
+.progress-bar {
+  block-size: 0.75rem;
+  inline-size: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-2);
+  overflow: hidden;
+  --fill: 0%;
+}
+
+.progress-bar__fill {
+  display: block;
+  block-size: 100%;
+  inline-size: var(--fill, 0%);
+  border-radius: inherit;
+  background: var(--color-primary);
+  transition: inline-size var(--transition-fast);
+}

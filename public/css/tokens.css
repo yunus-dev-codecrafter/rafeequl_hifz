@@ -1,0 +1,161 @@
+:root {
+  color-scheme: light dark;
+
+  --color-bg: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #eceff2;
+  --color-text: #17211f;
+  --color-text-muted: #5b6a67;
+  --color-border: #d7dee1;
+
+  --color-primary: #0f766e;
+  --color-primary-strong: #0b5c55;
+  --color-primary-soft: #d9efec;
+  --color-on-primary: #ffffff;
+
+  --color-success: #1d7a3e;
+  --color-success-soft: #e2f4e8;
+  --color-danger: #b42318;
+  --color-danger-soft: #fde7e4;
+  --color-warning: #a15c07;
+  --color-warning-soft: #fdf0dc;
+  --color-muted-soft: #e7ebee;
+
+  --color-focus: #1d4ed8;
+  --color-backdrop: rgb(15 23 23 / 45%);
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Tahoma, Arial, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.5rem;
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-tight: 1.25;
+  --line-normal: 1.6;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* Minimum comfortable touch target (44px); buttons/inputs already meet it. */
+  --touch-target: 2.75rem;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(15 23 23 / 8%);
+  --shadow-md: 0 6px 20px rgb(15 23 23 / 12%);
+
+  --transition-fast: 150ms ease;
+  --transition-med: 240ms ease;
+
+  /* Skeleton shimmer follows the surface tokens, so themes need no overrides. */
+  --skeleton-base: var(--color-surface-2);
+  --skeleton-shine: var(--color-surface);
+
+  --z-header: 100;
+  --z-toast: 1000;
+  --z-sheet: 1100;
+  --z-modal: 1150;
+
+  --layout-max-width: 42rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #101816;
+    --color-surface: #18221f;
+    --color-surface-2: #223029;
+    --color-text: #e8eeec;
+    --color-text-muted: #9fb0ab;
+    --color-border: #2d3d37;
+
+    --color-primary: #2ea39a;
+    --color-primary-strong: #63cabe;
+    --color-primary-soft: #122e2b;
+    --color-on-primary: #06231f;
+
+    --color-success: #58c481;
+    --color-success-soft: #16301f;
+    --color-danger: #ef8076;
+    --color-danger-soft: #3a1c19;
+    --color-warning: #e0a552;
+    --color-warning-soft: #36280f;
+    --color-muted-soft: #232e2a;
+
+    --color-focus: #7ea6ff;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 35%);
+    --shadow-md: 0 6px 20px rgb(0 0 0 / 45%);
+  }
+}
+
+/* Manual override from the dashboard control (auto = follow the system). */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --color-bg: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #eceff2;
+  --color-text: #17211f;
+  --color-text-muted: #5b6a67;
+  --color-border: #d7dee1;
+
+  --color-primary: #0f766e;
+  --color-primary-strong: #0b5c55;
+  --color-primary-soft: #d9efec;
+  --color-on-primary: #ffffff;
+
+  --color-success: #1d7a3e;
+  --color-success-soft: #e2f4e8;
+  --color-danger: #b42318;
+  --color-danger-soft: #fde7e4;
+  --color-warning: #a15c07;
+  --color-warning-soft: #fdf0dc;
+  --color-muted-soft: #e7ebee;
+
+  --color-focus: #1d4ed8;
+
+  --shadow-sm: 0 1px 2px rgb(15 23 23 / 8%);
+  --shadow-md: 0 6px 20px rgb(15 23 23 / 12%);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #101816;
+  --color-surface: #18221f;
+  --color-surface-2: #223029;
+  --color-text: #e8eeec;
+  --color-text-muted: #9fb0ab;
+  --color-border: #2d3d37;
+
+  --color-primary: #2ea39a;
+  --color-primary-strong: #63cabe;
+  --color-primary-soft: #122e2b;
+  --color-on-primary: #06231f;
+
+  --color-success: #58c481;
+  --color-success-soft: #16301f;
+  --color-danger: #ef8076;
+  --color-danger-soft: #3a1c19;
+  --color-warning: #e0a552;
+  --color-warning-soft: #36280f;
+  --color-muted-soft: #232e2a;
+
+  --color-focus: #7ea6ff;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 35%);
+  --shadow-md: 0 6px 20px rgb(0 0 0 / 45%);
+}

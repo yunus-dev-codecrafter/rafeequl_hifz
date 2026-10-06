@@ -1,0 +1,65 @@
+# ============================================================
+# Rafeequl Hifz - Apache static-caching layer (Prompt 26)
+# Deployment details + rationale: docs/deployment/performance.md
+#
+# Every block is wrapped in IfModule: a host without the module
+# skips that section instead of 500-ing. The app works without
+# this file entirely - it is a pure enhancement layer.
+# ============================================================
+
+# --- Compression -------------------------------------------------------
+# Text assets only; already-encoded responses (PHP gzip on API/HTML)
+# are left alone by mod_deflate automatically.
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json application/manifest+json image/svg+xml
+</IfModule>
+
+# --- Expiry ------------------------------------------------------------
+# Asset filenames are stable (no content hashing), so the window is a
+# short 1 week - long enough to kill repeat downloads, short enough that
+# a replaced CSS/JS/PNG reaches users within days. Never "immutable".
+# The HTML shell is NOT listed here: PHP already sends no-cache on it.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType text/javascript "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
+  ExpiresByType image/png "access plus 1 week"
+  ExpiresByType image/svg+xml "access plus 1 week"
+  ExpiresByType application/json "access plus 1 day"
+</IfModule>
+
+# --- Must-revalidate trio --------------------------------------------
+# mod_headers runs after mod_expires, so these win for the files that
+# must NEVER be cached for a week: a stale sw.js would pin an old app
+# version, and manifest.json drives install metadata.
+<IfModule mod_headers.c>
+  <FilesMatch "^(sw\.js|manifest\.json|shell\.html)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# --- Front controller --------------------------------------------------
+# The SPA is hash-routed (deep links never hit the server), but every
+# non-file path (e.g. /api/v1/...) still has to reach index.php.
+# Documented in README.md (Layout) since Prompt 05.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [L]
+</IfModule>
+
+# --- Protect sensitive paths -------------------------------------------
+# Dotfiles (.htaccess itself, stray .env, backups) are never served.
+<IfModule mod_authz_core.c>
+  <FilesMatch "^\.">
+    Require all denied
+  </FilesMatch>
+</IfModule>
+<IfModule !mod_authz_core.c>
+  <FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+  </FilesMatch>
+</IfModule>

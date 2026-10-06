@@ -1,0 +1,112 @@
+/* Loading, empty, error and success states.
+   One block family (.state-card + tone modifiers) + spinner/skeleton loaders. */
+
+.state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  padding-block: var(--space-5);
+}
+
+.state-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 3rem;
+  block-size: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.state-card__icon--done {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.state-card__icon--error {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.state-card__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.state-card__text {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  max-inline-size: 26rem;
+}
+
+.state-card .alert {
+  max-inline-size: 26rem;
+}
+
+/* --- loading ------------------------------------------------------------- */
+
+.spinner {
+  display: inline-block;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  border: 2px solid var(--color-border);
+  border-block-start-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  animation: spin var(--transition-med) linear infinite;
+}
+
+.spinner--lg {
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-width: 3px;
+}
+
+.skeleton {
+  block-size: 1rem;
+  inline-size: 100%;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    100deg,
+    var(--skeleton-base) 40%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-base) 60%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shine 1.2s ease-in-out infinite;
+}
+
+.skeleton--title {
+  block-size: 1.25rem;
+  inline-size: 45%;
+}
+
+.skeleton--line {
+  block-size: 0.75rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes skeleton-shine {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner,
+  .skeleton {
+    animation-duration: 2.4s;
+  }
+}

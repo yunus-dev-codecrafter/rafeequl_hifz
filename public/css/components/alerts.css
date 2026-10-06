@@ -1,0 +1,50 @@
+/* Inline alerts: soft tinted messages next to content (info is the default). */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-normal);
+}
+
+.alert--success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.alert--warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
+
+.alert--danger {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+/* Offline banner: fixed status strip while connectivity is lost (Prompt 19). */
+
+.offline-banner {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: var(--z-toast);
+  padding: var(--space-2) var(--space-4) calc(var(--space-2) + env(safe-area-inset-bottom));
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  border-block-start: 1px solid var(--color-border);
+}
+
+/* Keep toasts clear of the offline banner when both are visible. */
+html[data-offline] .toast-region {
+  padding-block-end: calc(var(--space-4) + 2.75rem + env(safe-area-inset-bottom));
+}
