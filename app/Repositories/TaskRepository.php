@@ -12,6 +12,9 @@ namespace App\Repositories;
  */
 final class TaskRepository extends Repository
 {
+    /** Slug of the seeded ربط (rolling link) task type. */
+    public const RABT_SLUG = 'rabt';
+
     /** Shared select: task + type + its (at most one) completion record. */
     private const SELECT = 'SELECT t.id, t.user_id, t.task_type_id, t.title, t.scheduled_date,
                t.duration_minutes, t.status, t.completed_at, t.actual_duration_seconds,
@@ -32,6 +35,17 @@ final class TaskRepository extends Repository
                FROM task_types
               WHERE id = ?',
             [$typeId]
+        );
+    }
+
+    /** Type row by slug — the seeded vocabulary is addressed by slug. */
+    public function findTypeBySlug(string $slug): ?array
+    {
+        return $this->fetch(
+            'SELECT id, slug, name_en, name_ar, category, default_duration_minutes, sort_order, is_active
+               FROM task_types
+              WHERE slug = ?',
+            [$slug]
         );
     }
 
@@ -61,6 +75,25 @@ final class TaskRepository extends Repository
         return $this->fetchAll(
             self::SELECT . ' WHERE t.user_id = ? AND t.scheduled_date = ? ORDER BY t.id ASC',
             [$userId, $date]
+        );
+    }
+
+    /**
+     * Today's Rabt task, whatever its status — the idempotency guard for the
+     * auto-created one (a completed task for today still counts as existing).
+     * "Today" is the server's UTC date, same rule as the day view.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function findRabtTaskForToday(int $userId): ?array
+    {
+        return $this->fetch(
+            'SELECT t.id, t.status, t.scheduled_date
+               FROM daily_tasks t
+               JOIN task_types k ON k.id = t.task_type_id
+              WHERE t.user_id = ? AND k.slug = ? AND t.scheduled_date = UTC_DATE()
+              LIMIT 1',
+            [$userId, self::RABT_SLUG]
         );
     }
 

@@ -152,7 +152,14 @@ try {
     checkEquals('export: excludes other users', false, str_contains($exportJson, $bEmail));
 
     // --- Prompt 23: referenced-vocabulary subsets (import resolution aids) ----
-    checkEquals('export: task_types subset = referenced ids', [$taskTypeId], array_column($export['task_types'] ?? [], 'id'));
+    // establish() also creates today's auto Rabt task, so both quran types
+    // are referenced by the time the export runs (ordered by task_types.id).
+    $rabtTypeId = (int) Database::scalar("SELECT id FROM task_types WHERE slug = 'rabt'");
+    checkEquals(
+        'export: task_types subset = referenced ids',
+        [$taskTypeId, $rabtTypeId],
+        array_column($export['task_types'] ?? [], 'id')
+    );
     check('export: task_types subset carries slugs', in_array('murajaah', array_column($export['task_types'] ?? [], 'slug'), true));
     checkEquals('export: flip categories subset = 1', 1, count($export['flip_card_categories'] ?? []));
     checkEquals('export: flip category slug', 'verse_mistake', $export['flip_card_categories'][0]['slug'] ?? null);

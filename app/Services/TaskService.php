@@ -28,7 +28,9 @@ use App\Repositories\TaskRepository;
  *   history lives in task_completions, not in the mutable task row;
  * - productivity tables have no link into memorization/revision data:
  *   creating, editing, completing or deleting a task can never corrupt
- *   Hifz progress.
+ *   Hifz progress. The single permitted direction is memorization → task:
+ *   a boundary write may ensure today's Rabt task exists (see
+ *   ensureRabtTaskForToday), and that task never feeds back into Hifz data.
  */
 final class TaskService
 {
@@ -131,6 +133,43 @@ final class TaskService
         $taskId = $this->tasks->create($userId, (int) $type['id'], $title, $scheduledDate, $duration, $notes);
 
         return ['task' => $this->requireTask($userId, $taskId)];
+    }
+
+    /**
+     * Makes sure the user has a Rabt (ربط) task scheduled for today. Called
+     * after every memorization boundary write so the rolling window shows up
+     * in "today" without a manual create (Prompt 12).
+     *
+     * Idempotent: any task of the rabt type already scheduled for today —
+     * manual or automatic, completed or not — is left untouched, so several
+     * boundary changes on the same day never duplicate it.
+     *
+     * @return bool true when a task was created, false when one already existed
+     */
+    public function ensureRabtTaskForToday(int $userId): bool
+    {
+        if ($this->tasks->findRabtTaskForToday($userId) !== null) {
+            return false;
+        }
+
+        $type = $this->tasks->findTypeBySlug(TaskRepository::RABT_SLUG);
+        // A missing or deactivated seed must not fail an already-committed
+        // memorization write — skipping only postpones the task to the next
+        // boundary change or a manual create.
+        if ($type === null || (int) $type['is_active'] !== 1) {
+            return false;
+        }
+
+        $this->tasks->create(
+            $userId,
+            (int) $type['id'],
+            null,
+            gmdate('Y-m-d'),
+            (int) $type['default_duration_minutes'],
+            null
+        );
+
+        return true;
     }
 
     /**

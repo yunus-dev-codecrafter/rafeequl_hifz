@@ -7,6 +7,7 @@ import { notify } from '../../components/notifications.js';
 import { openSheet } from '../../components/bottom-sheet.js';
 import { showFieldErrors, focusFirstInvalid } from '../../components/form-errors.js';
 import { updateProgressBar } from '../../components/progress-bar.js';
+import { openFlagSheet } from '../flip-cards/flag-card-sheet.js';
 import {
   listPlans,
   planDetail,
@@ -320,6 +321,7 @@ function renderSession(root, detail, session) {
     finish: qs('[data-action="finish"]', panel),
     pause: qs('[data-action="pause"]', panel),
     interrupt: qs('[data-action="interrupt"]', panel),
+    flag: qs('[data-action="flag"]', panel),
   };
 
   const withBusy = async (action) => {
@@ -365,6 +367,15 @@ function renderSession(root, detail, session) {
       return;
     }
     openInterruptSheet(root, () => activeSession);
+  });
+
+  // Saving a card never touches session state — the sheet closes and the
+  // revision continues from exactly the same page.
+  buttons.flag.addEventListener('click', () => {
+    if (isBusy) {
+      return;
+    }
+    openFlagSheet({ prefillPage: activeSession.current_page });
   });
 }
 

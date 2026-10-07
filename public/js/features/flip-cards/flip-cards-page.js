@@ -10,14 +10,13 @@ import { openSheet } from '../../components/bottom-sheet.js';
 import { openModal } from '../../components/modal.js';
 import { clearFieldErrors, showFieldErrors, focusFirstInvalid } from '../../components/form-errors.js';
 import {
-  listCategories,
   listQueue,
   listCards,
-  createCard,
   reviewCard,
   setCardStatus,
   deleteCard,
 } from './flip-cards-api.js';
+import { openFlagSheet } from './flag-card-sheet.js';
 
 const STATUS_LABEL = {
   active: 'نشطة',
@@ -45,7 +44,7 @@ export function renderFlipCards(container) {
   const root = container.firstElementChild;
 
   qs('[data-action="flag-card"]', root).addEventListener('click', () => {
-    openFlagSheet(() => refresh(root));
+    openFlagSheet({ onCreated: () => refresh(root) });
   });
   wireActions(root);
 
@@ -236,102 +235,6 @@ function wireActions(root) {
     } finally {
       isBusy = false;
       root.removeAttribute('aria-busy');
-    }
-  });
-}
-
-// ---------------------------------------------------------------------
-// Flag sheet (categories load lazily; server owns the location math)
-// ---------------------------------------------------------------------
-
-function openFlagSheet(onCreated) {
-  const sheet = openSheet('sheet-flag-card');
-  const form = qs('#flag-card-form', sheet.element);
-  const categorySelect = form.elements.category_id;
-
-  categorySelect.appendChild(make('option', { text: 'اختر نوع الخطأ', attrs: { value: '' } }));
-  listCategories()
-    .then((data) => {
-      for (const category of data.categories) {
-        categorySelect.appendChild(
-          make('option', { text: category.name_ar, attrs: { value: String(category.id) } })
-        );
-      }
-    })
-    .catch((error) => {
-      sheet.close();
-      handleWriteError(error, 'تعذر تحميل أنواع الأخطاء');
-    });
-
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    clearFieldErrors(form);
-
-    const surah = Number(form.elements.surah_number.value);
-    const ayah = Number(form.elements.ayah_number.value);
-    const page = Number(form.elements.page_number.value);
-    const categoryId = Number(categorySelect.value);
-    const errorNote = form.elements.error_note.value.trim();
-    const contextNote = form.elements.context_note.value.trim();
-    const severity = form.elements.severity.value;
-
-    const localErrors = [];
-    if (!Number.isInteger(surah) || surah < 1) {
-      localErrors.push({ field: 'surah_number', message: 'أدخل رقم السورة صحيحاً يبدأ من 1' });
-    }
-    if (!Number.isInteger(ayah) || ayah < 1) {
-      localErrors.push({ field: 'ayah_number', message: 'أدخل رقم الآية صحيحاً يبدأ من 1' });
-    }
-    if (!Number.isInteger(page) || page < 1) {
-      localErrors.push({ field: 'page_number', message: 'أدخل رقم الصفحة صحيحاً يبدأ من 1' });
-    }
-    if (!Number.isInteger(categoryId) || categoryId < 1) {
-      localErrors.push({ field: 'category_id', message: 'اختر نوع الخطأ' });
-    }
-    if (errorNote === '') {
-      localErrors.push({ field: 'error_note', message: 'اكتب وصف الخطأ' });
-    }
-    if (localErrors.length > 0) {
-      showFieldErrors(form, localErrors);
-      focusFirstInvalid(form);
-      return;
-    }
-
-    const submit = qs('button[type="submit"]', form);
-    submit.disabled = true;
-    try {
-      const payload = {
-        surah_number: surah,
-        ayah_number: ayah,
-        page_number: page,
-        category_id: categoryId,
-        error_note: errorNote,
-        severity,
-      };
-      if (contextNote !== '') {
-        payload.context_note = contextNote;
-      }
-      await createCard(payload);
-      sheet.close();
-      notify.success('حُفظت البطاقة');
-      await onCreated();
-    } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
-        sheet.close();
-        navigate('/login');
-        return;
-      }
-      if (error instanceof ApiError && error.errors.length > 0) {
-        const shown = showFieldErrors(form, error.errors);
-        if (shown) {
-          focusFirstInvalid(form);
-        } else {
-          notify.error(error.message);
-        }
-      } else {
-        notify.error('تعذر حفظ البطاقة');
-      }
-      submit.disabled = false;
     }
   });
 }

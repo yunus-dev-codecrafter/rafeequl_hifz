@@ -160,6 +160,7 @@
       <div class="session__controls">
         <button class="btn btn--primary" type="button" data-action="next">التالي</button>
         <button class="btn btn--success" type="button" data-action="finish">إنهاء الجلسة</button>
+        <button class="btn btn--ghost" type="button" data-action="flag">علّم خطأً</button>
         <button class="btn" type="button" data-action="pause">إيقاف مؤقت</button>
         <button class="btn btn--danger" type="button" data-action="interrupt">انقطاع</button>
       </div>
@@ -799,6 +800,61 @@
         <div class="form__field">
           <label class="form__label" for="flag-severity">الشدة</label>
           <select class="form__input" id="flag-severity" name="severity">
+            <option value="low">خفيفة</option>
+            <option value="medium" selected>متوسطة</option>
+            <option value="high">شديدة</option>
+          </select>
+          <p class="form__error" data-error-for="severity" hidden></p>
+        </div>
+        <div class="bottom-sheet__actions">
+          <button class="btn btn--primary btn--block" type="submit">حفظ البطاقة</button>
+          <button class="btn btn--ghost btn--block" type="button" data-action="cancel">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <template id="sheet-flag-card-session">
+    <div class="bottom-sheet__backdrop" data-action="dismiss"></div>
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="flag-session-title">
+      <h2 class="bottom-sheet__title" id="flag-session-title">علّم خطأً أثناء الجلسة</h2>
+      <form class="bottom-sheet__body form" id="flag-card-session-form" novalidate>
+        <p class="form__hint">الصفحة هي صفحتك الحالية — اختر الآية ونوع الخطأ ثم احفظ.</p>
+        <div class="form__field">
+          <label class="form__label" for="flag-session-page">رقم الصفحة</label>
+          <input class="form__input" id="flag-session-page" name="page_number" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="page_number" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-session-ayah">الآية</label>
+          <select class="form__input" id="flag-session-ayah" name="ayah_number" required></select>
+          <p class="form__error" data-error-for="ayah_number" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-session-surah">رقم السورة</label>
+          <input class="form__input" id="flag-session-surah" name="surah_number" type="number"
+                 inputmode="numeric" min="1" step="1" required>
+          <p class="form__error" data-error-for="surah_number" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-session-category">نوع الخطأ</label>
+          <select class="form__input" id="flag-session-category" name="category_id" required></select>
+          <p class="form__error" data-error-for="category_id" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-session-note">وصف الخطأ</label>
+          <input class="form__input" id="flag-session-note" name="error_note" type="text" maxlength="500" required>
+          <p class="form__error" data-error-for="error_note" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-session-context">السياق (اختياري)</label>
+          <input class="form__input" id="flag-session-context" name="context_note" type="text" maxlength="500">
+          <p class="form__error" data-error-for="context_note" hidden></p>
+        </div>
+        <div class="form__field">
+          <label class="form__label" for="flag-session-severity">الشدة</label>
+          <select class="form__input" id="flag-session-severity" name="severity">
             <option value="low">خفيفة</option>
             <option value="medium" selected>متوسطة</option>
             <option value="high">شديدة</option>

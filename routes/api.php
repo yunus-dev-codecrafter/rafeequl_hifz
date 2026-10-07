@@ -8,6 +8,7 @@ use App\Controllers\FlipCardController;
 use App\Controllers\HealthController;
 use App\Controllers\MemorizationController;
 use App\Controllers\ProgressController;
+use App\Controllers\QuranController;
 use App\Controllers\RevisionController;
 use App\Controllers\RevisionSessionController;
 use App\Controllers\SettingsController;
@@ -40,6 +41,9 @@ return [
     // Password reset (throttled: audit finding F-03)
     ['POST', '/api/v1/auth/password/forgot', [AuthController::class, 'forgotPassword'], [RateLimitMiddleware::class]],
     ['POST', '/api/v1/auth/password/reset', [AuthController::class, 'resetPassword'], [RateLimitMiddleware::class]],
+
+    // Canonical Quran structure (shared reference data, read-only)
+    ['GET', '/api/v1/quran/pages/{page_number}/ayahs', [QuranController::class, 'pageAyahs'], [AuthMiddleware::class]],
 
     // Memorization progress (Prompt 09)
     ['GET', '/api/v1/memorization/state', [MemorizationController::class, 'state'], [AuthMiddleware::class]],

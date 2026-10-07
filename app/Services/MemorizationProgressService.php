@@ -21,7 +21,10 @@ use App\Repositories\RevisionPlanRepository;
  * - history is append-only — boundary moves add rows, never rewrite them;
  * - boundary correction always requires explicit confirmation;
  * - all writes run in one transaction; dependent figures recalculate at
- *   read time, active revision plans outside a shrunken range are paused.
+ *   read time, active revision plans outside a shrunken range are paused;
+ * - every boundary write also makes sure today's Rabt task exists. That is
+ *   the only link between the domains and it points one way: memorization →
+ *   task. Productivity data still never touches Hifz progress.
  *
  * Quran coordinates are validated against the canonical dataset and never
  * fabricated (data-architecture §9); arithmetic lives in HifzCalculationService.
@@ -32,17 +35,20 @@ final class MemorizationProgressService
     private RevisionPlanRepository $plans;
     private QuranStructureService $structure;
     private HifzCalculationService $hifz;
+    private TaskService $tasks;
 
     public function __construct(
         ?MemorizationStateRepository $states = null,
         ?RevisionPlanRepository $plans = null,
         ?QuranStructureService $structure = null,
         ?HifzCalculationService $hifz = null,
+        ?TaskService $tasks = null,
     ) {
         $this->states = $states ?? new MemorizationStateRepository();
         $this->plans = $plans ?? new RevisionPlanRepository();
         $this->structure = $structure ?? new QuranStructureService();
         $this->hifz = $hifz ?? new HifzCalculationService($this->states, $this->structure);
+        $this->tasks = $tasks ?? new TaskService();
     }
 
     /**
@@ -119,6 +125,8 @@ final class MemorizationProgressService
             );
         });
 
+        $this->tasks->ensureRabtTaskForToday($userId);
+
         return [
             'state' => $this->state($userId),
             'boundary_change' => $this->boundaryChange(null, $boundaryPage),
@@ -186,6 +194,8 @@ final class MemorizationProgressService
                 return 0;
             }
         );
+
+        $this->tasks->ensureRabtTaskForToday($userId);
 
         return [
             'state' => $this->state($userId),
@@ -255,6 +265,8 @@ final class MemorizationProgressService
                 return 0;
             }
         );
+
+        $this->tasks->ensureRabtTaskForToday($userId);
 
         return [
             'state' => $this->state($userId),

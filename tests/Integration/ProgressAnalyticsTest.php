@@ -171,9 +171,11 @@ try {
 
     $week = $svc->summary($a)['productivity'];
     // Window covers today..today-6: the day-10 task is outside it.
-    checkEquals('week: 4 planned tasks', 4, $week['planned']);
+    // establish() above already auto-created today's pending Rabt task, so
+    // five planned rows sit inside the window.
+    checkEquals('week: 5 planned tasks', 5, $week['planned']);
     checkEquals('week: 2 completed tasks', 2, $week['completed']);
-    checkEquals('week: percent 50.0', 50.0, $week['percent']);
+    checkEquals('week: percent 40.0', 40.0, $week['percent']);
 
     $rabt = $svc->summary($a)['rabt'];
     // Only the day-3 ربط task is both completed and inside 14 days

@@ -32,6 +32,11 @@ export function createCard(payload) {
   return api.post('/flip-cards', payload);
 }
 
+/** Canonical ayahs on a page (in reading order) — powers the flag picker. */
+export function pageAyahs(pageNumber) {
+  return api.get('/quran/pages/' + Number(pageNumber) + '/ayahs');
+}
+
 export function reviewCard(cardId, payload) {
   return api.post('/flip-cards/' + cardId + '/review', payload);
 }

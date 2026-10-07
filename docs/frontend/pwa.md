@@ -11,7 +11,7 @@ sentence: **the shell may be served offline; data may not.**
 | `public/manifest.json` | Web app manifest: Arabic `name`/`short_name`, `lang: ar`, `dir: rtl`, `start_url`/`scope` `/`, `display: standalone`, `theme_color: #0f766e`, `background_color: #ffffff`, icons (`any` 192/512 + `maskable` 512). |
 | `public/assets/icons/` | Generated: `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon-180.png` (master source lives at `tools/app-icon.png`, outside the docroot — Prompt 26). |
 | `tools/generate-icons.php` | Pure-PHP PNG pipeline (decode → unfilter → box downsample → compose maskable → encode, no GD). Re-run after changing the source icon: `php tools/generate-icons.php`. |
-| `public/sw.js` | Service worker: versioned precache (`rafeeq-static-v6`), navigation + asset strategies. |
+| `public/sw.js` | Service worker: versioned precache (`rafeeq-static-v7`), navigation + asset strategies. |
 | `public/js/core/pwa.js` | Registration, update-available toast, online/offline banner state, `isOffline()`. |
 | `public/shell.html` | Manifest/apple metas, `viewport-fit=cover`, `#offline-banner` element. |
 | `app/Middleware/SecurityHeadersMiddleware.php` | `Cache-Control: no-store` for `/api/*`, `no-cache` otherwise (error responses mirror this in `ExceptionHandler`). |
@@ -83,6 +83,6 @@ by design (Prompt 19).
 ## Verification
 
 `test_pwa.ps1` (63 checks): manifest fields + icon responses, precache
-coverage vs disk (18 CSS + 35 JS, no API/uploads entries, all entries
+coverage vs disk (18 CSS + 36 JS, no API/uploads entries, all entries
 exist), SW guards, shell wiring, `no-store`/`no-cache` headers on success
 and error paths, module wiring, banner/safe-area CSS.
