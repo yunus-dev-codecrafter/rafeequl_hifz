@@ -1,4 +1,5 @@
-/* Buttons: base + tone/size modifiers (touch target: --touch-target). */
+/* Buttons: base + tone/size modifiers (touch target: --touch-target).
+ * Pill geometry + layered elevation on the solid tones. */
 
 .btn {
   display: inline-flex;
@@ -6,19 +7,24 @@
   justify-content: center;
   gap: var(--space-2);
   min-block-size: var(--touch-target);
-  padding-inline: var(--space-4);
+  padding-inline: var(--space-5);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-text);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn:hover:not(:disabled) {
   background: var(--color-surface-2);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn:disabled {
@@ -30,34 +36,41 @@
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-on-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn--primary:hover:not(:disabled) {
   background: var(--color-primary-strong);
   border-color: var(--color-primary-strong);
+  box-shadow: var(--shadow-md);
 }
 
 .btn--success {
   background: var(--color-success);
   border-color: var(--color-success);
   color: var(--color-on-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn--success:hover:not(:disabled) {
   filter: brightness(0.92);
+  box-shadow: var(--shadow-md);
 }
 
 .btn--danger {
   background: var(--color-danger);
   border-color: var(--color-danger);
   color: var(--color-on-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn--danger:hover:not(:disabled) {
   filter: brightness(0.94);
+  box-shadow: var(--shadow-md);
 }
 
 .btn--ghost {
+  padding-inline: var(--space-4);
   background: transparent;
   border-color: transparent;
   color: var(--color-primary);
@@ -65,20 +78,35 @@
 
 .btn--ghost:hover:not(:disabled) {
   background: var(--color-primary-soft);
+  border-color: transparent;
 }
 
 .btn--block {
   inline-size: 100%;
 }
 
+.btn--lg {
+  min-block-size: 3.25rem;
+  padding-inline: var(--space-6);
+  font-size: var(--font-size-lg);
+}
+
 .btn--sm {
   min-block-size: var(--touch-target);
-  padding-inline: var(--space-3);
+  padding-inline: var(--space-4);
   font-size: var(--font-size-sm);
 }
 
 @media (min-width: 30rem) {
   .btn--wide {
     min-inline-size: 12rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn:hover:not(:disabled),
+  .btn:active:not(:disabled) {
+    transform: none;
   }
 }

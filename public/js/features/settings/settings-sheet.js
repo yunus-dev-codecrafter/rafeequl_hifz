@@ -10,6 +10,7 @@ import { notify, isDesktopSupported, requestDesktopPermission } from '../../comp
 import { clearFieldErrors, showFieldErrors, focusFirstInvalid } from '../../components/form-errors.js';
 import { getUser, setUser, logout } from '../../core/auth.js';
 import { navigate } from '../../core/router.js';
+import { t, getLocale, setLocale } from '../../core/i18n.js';
 import {
   isAwakeEnabled,
   isSoundEnabled,
@@ -35,19 +36,21 @@ import {
 import { reconcileFromServer, restoreFromSnapshot, saveSnapshot } from './settings-sync.js';
 import { isOffline } from '../../core/pwa.js';
 
+// Dictionary keys, resolved with t() at paint time so the labels follow the
+// locale that is active when the sheet is shown (Issue 2).
 const THEME_LABELS = {
-  auto: 'تلقائي',
-  light: 'النهار',
-  dark: 'الليل',
+  auto: 'settings.themeAuto',
+  light: 'settings.themeLight',
+  dark: 'settings.themeDark',
 };
 
 const UNIT_ORDER = ['page', 'hizb', 'rub', 'juz'];
 
 const UNIT_LABELS = {
-  page: 'صفحة',
-  hizb: 'حزب',
-  rub: 'ربع',
-  juz: 'جزء',
+  page: 'settings.unitPage',
+  hizb: 'settings.unitHizb',
+  rub: 'settings.unitRub',
+  juz: 'settings.unitJuz',
 };
 
 /** Opens the sheet; onPrefChange re-syncs the dashboard control row. */
@@ -78,7 +81,7 @@ export function openSettingsSheet(onPrefChange) {
   const syncSheet = () => {
     awakeSwitch.setAttribute('aria-checked', String(isAwakeEnabled()));
     soundSwitch.setAttribute('aria-checked', String(isSoundEnabled()));
-    themeLabel.textContent = THEME_LABELS[getTheme()];
+    themeLabel.textContent = t(THEME_LABELS[getTheme()]);
     notifySwitch.setAttribute(
       'aria-checked',
       String(isDesktopNotificationsEnabled() && isDesktopSupported() && Notification.permission === 'granted')
@@ -94,7 +97,7 @@ export function openSettingsSheet(onPrefChange) {
         button.setAttribute('aria-checked', String(reminders.cats[button.dataset.remind] !== false));
       });
     }
-    unitLabel.textContent = UNIT_LABELS[revision.unit];
+    unitLabel.textContent = t(UNIT_LABELS[revision.unit]);
     amountInput.value = String(revision.amount);
   };
 
@@ -123,10 +126,29 @@ export function openSettingsSheet(onPrefChange) {
     });
   };
 
+  /** Reflects the active locale (device copy) onto the radiogroup. */
+  const syncLocaleButtons = () => {
+    localeButtons.forEach((button) => {
+      button.setAttribute('aria-checked', String(button.dataset.locale === getLocale()));
+    });
+    syncLocaleTabStops();
+  };
+  syncLocaleButtons();
+
   localeButtons.forEach((button) => {
     button.addEventListener('click', () => {
       localeButtons.forEach((other) => other.setAttribute('aria-checked', String(other === button)));
       syncLocaleTabStops();
+
+      const locale = button.dataset.locale;
+      if (getLocale() !== locale) {
+        setLocale(locale);
+        // Re-paint the dynamic labels (theme, revision unit) too: [data-i18n]
+        // only covers static text.
+        syncSheet();
+        writeThrough({ locale });
+        onPrefChange?.();
+      }
     });
 
     button.addEventListener('keydown', (event) => {
@@ -167,10 +189,12 @@ export function openSettingsSheet(onPrefChange) {
         unit: settings.daily_revision_unit,
         amount: settings.daily_revision_amount,
       };
-      qsa('[data-locale]', root).forEach((button) => {
-        button.setAttribute('aria-checked', String(button.dataset.locale === settings.locale));
-      });
-      syncLocaleTabStops();
+      // The account is the source of truth for the locale: adopt it so the
+      // radiogroup and the painted UI can never disagree.
+      if (settings.locale && settings.locale !== getLocale()) {
+        setLocale(settings.locale);
+      }
+      syncLocaleButtons();
       syncSheet();
     })
     .catch((error) => {
@@ -198,6 +222,11 @@ export function openSettingsSheet(onPrefChange) {
           unit: restored.daily_revision_unit,
           amount: restored.daily_revision_amount,
         };
+        // A failed locale write rolls the interface back to the account copy.
+        if (patch.locale && restored.locale && restored.locale !== getLocale()) {
+          setLocale(restored.locale);
+          syncLocaleButtons();
+        }
       }
       syncSheet();
       onPrefChange?.();
@@ -282,7 +311,7 @@ export function openSettingsSheet(onPrefChange) {
   unitButton.addEventListener('click', () => {
     const next = UNIT_ORDER[(UNIT_ORDER.indexOf(revision.unit) + 1) % UNIT_ORDER.length];
     revision.unit = next;
-    unitLabel.textContent = UNIT_LABELS[next];
+    unitLabel.textContent = t(UNIT_LABELS[next]);
   });
 
   qs('[data-action="save-revision"]', root).addEventListener('click', async () => {

@@ -38,6 +38,49 @@
   text-align: center;
 }
 
+/* Current page + inline error flag controls (Issue 3B). */
+.session__page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.session__page-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.session__page-errors {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-full);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+/* The flag button sits beside the page number so it is impossible to miss. */
+.session__flag {
+  border-color: var(--color-warning);
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  font-weight: var(--font-weight-bold);
+}
+
+.session__flag:hover:not(:disabled) {
+  background: var(--color-warning-soft);
+  border-color: var(--color-warning);
+  filter: brightness(0.96);
+  box-shadow: var(--shadow-sm);
+}
+
 .session__current {
   font-size: var(--font-size-3xl);
   font-weight: 700;
@@ -172,4 +215,112 @@
   .session__controls {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
+
+/* --- rabt (الربط) view (Issue 3C) ---------------------------------------- */
+
+.rabt-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.rabt-view__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.rabt-view__title {
+  font-size: var(--font-size-2xl);
+}
+
+.rabt-view__subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.rabt-view [data-slot='status'] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Flexible wrap of small numbered cells (≈36×36). */
+.rabt-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.rabt-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 36px;
+  block-size: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.rabt-cell--completed {
+  background: var(--color-success-soft);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.rabt-cell--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary-strong);
+  color: var(--color-on-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.rabt-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-2);
+}
+
+.rabt-hero__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.rabt-hero__number {
+  font-size: 3rem;
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-tight);
+  color: var(--color-primary);
+}
+
+.rabt-action {
+  inline-size: 100%;
+}
+
+.rabt-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.rabt-done h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.rabt-done p {
+  color: var(--color-text-muted);
 }

@@ -10,8 +10,10 @@ export function planDetail(planId) {
   return api.get('/revision/plans/' + planId);
 }
 
-export function createPlan() {
-  return api.post('/revision/plans', {});
+/** Creates a revision plan; omitted fields fall back to the saved defaults
+ *  (target_unit + daily_amount let the range setup pick its own target). */
+export function createPlan(payload = {}) {
+  return api.post('/revision/plans', payload ?? {});
 }
 
 export function setPlanStatus(planId, status) {

@@ -2,6 +2,7 @@
  *  The settings sheet itself lives in features/settings. */
 
 import { qs } from '../../core/dom.js';
+import { t } from '../../core/i18n.js';
 import { notify } from '../../components/notifications.js';
 import { openSettingsSheet } from '../settings/settings-sheet.js';
 import {
@@ -14,10 +15,11 @@ import {
   cycleTheme,
 } from '../../core/prefs.js';
 
+// Dictionary keys, resolved with t() at paint time (Issue 2).
 const THEME_LABELS = {
-  auto: 'تلقائي',
-  light: 'النهار',
-  dark: 'الليل',
+  auto: 'settings.themeAuto',
+  light: 'settings.themeLight',
+  dark: 'settings.themeDark',
 };
 
 /** Wires the control row; onPrefChange re-syncs the row from the settings sheet. */
@@ -70,6 +72,6 @@ export function syncControls(root) {
 
   awakeButton.setAttribute('aria-pressed', String(isAwakeEnabled()));
   soundButton.setAttribute('aria-pressed', String(isSoundEnabled()));
-  themeLabel.textContent = THEME_LABELS[getTheme()];
-  themeButton.setAttribute('aria-label', 'وضع العرض: ' + THEME_LABELS[getTheme()]);
+  themeLabel.textContent = t(THEME_LABELS[getTheme()]);
+  themeButton.setAttribute('aria-label', `${t('settings.theme')}: ${t(THEME_LABELS[getTheme()])}`);
 }

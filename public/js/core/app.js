@@ -6,6 +6,7 @@ import { startRouter, navigate } from './router.js';
 import { fetchMe, isAuthenticated, logout } from './auth.js';
 import { appState } from './state.js';
 import { initPrefs } from './prefs.js';
+import { initI18n } from './i18n.js';
 import { registerRoutes } from './routes.js';
 import { notify } from '../components/notifications.js';
 import { reconcileFromServer } from '../features/settings/settings-sync.js';
@@ -17,6 +18,9 @@ function updateHeader() {
 }
 
 async function boot() {
+  // Locale first: <html lang/dir> and every [data-i18n] node must be right
+  // before any route paints its template.
+  initI18n();
   initPwa();
   initPrefs();
   initReminders();

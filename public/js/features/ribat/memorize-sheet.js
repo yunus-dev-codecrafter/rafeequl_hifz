@@ -10,16 +10,60 @@ import { openSheet } from '../../components/bottom-sheet.js';
 import { notify } from '../../components/notifications.js';
 import { clearFieldErrors, showFieldErrors, focusFirstInvalid } from '../../components/form-errors.js';
 import { establishState, markMemorized, correctBoundary } from './memorization-api.js';
+import { createPlan } from '../revision/revision-api.js';
+import { t } from '../../core/i18n.js';
 
-/** Establishes the initial memorized range; onSuccess reloads the caller. */
+/** Pages covered by one target unit (Issue 3A):
+ *  1 juz = 20 pages · 1 hizb = 10 pages · 1 rub = 2.5 pages · 1 page = 1 page. */
+const UNIT_PAGES = { page: 1, hizb: 10, rub: 2.5, juz: 20 };
+
+/** Establishes the initial memorized range, then creates the revision plan
+ *  from the daily target chosen in the same sheet (Issue 3A & Issue 4).
+ *  onSuccess reloads the caller. */
 export function openEstablishSheet(onSuccess) {
   const sheet = openSheet('sheet-establish');
   const form = qs('#establish-form', sheet.element);
+  const preview = qs('#establish-days-preview', sheet.element);
+
+  let planTarget = { target_unit: 'page', daily_amount: 1 };
+
+  /** Live estimate: total pages ÷ pages-per-day → cycle length in days. */
+  const updatePreview = () => {
+    const rawStart = form.elements.memorized_start_page.value.trim();
+    const rawBoundary = form.elements.current_boundary_page.value.trim();
+    const rawAmount = form.elements.daily_amount.value.trim();
+    const start = Number(rawStart);
+    const boundary = Number(rawBoundary);
+    const amount = Number(rawAmount);
+    const pagesPerUnit = UNIT_PAGES[form.elements.target_unit.value] ?? 1;
+    const totalPages = boundary - start + 1;
+    const pagesPerDay = amount * pagesPerUnit;
+
+    const valid = rawStart !== '' && rawBoundary !== '' && rawAmount !== ''
+      && Number.isInteger(start) && Number.isInteger(boundary)
+      && Number.isFinite(totalPages) && totalPages >= 1
+      && Number.isFinite(pagesPerDay) && pagesPerDay > 0;
+    if (!valid) {
+      preview.textContent = t('establish.daysPreviewInvalid');
+      return;
+    }
+    const days = Math.max(1, Math.ceil(totalPages / pagesPerDay));
+    preview.textContent = t('establish.daysPreview', { days });
+  };
+
+  wireRangeMode(form, updatePreview);
+  for (const name of ['memorized_start_page', 'current_boundary_page', 'daily_amount']) {
+    form.elements[name].addEventListener('input', updatePreview);
+  }
+  form.elements.target_unit.addEventListener('change', updatePreview);
+  updatePreview();
 
   wire(sheet, form, 'sheet-establish', () => {
     const start = Number(form.elements.memorized_start_page.value);
     const boundary = Number(form.elements.current_boundary_page.value);
     const note = form.elements.note.value.trim();
+    const targetUnit = form.elements.target_unit.value;
+    const dailyAmount = Number(form.elements.daily_amount.value);
 
     const localErrors = [];
     if (!Number.isInteger(start) || start < 1) {
@@ -31,9 +75,15 @@ export function openEstablishSheet(onSuccess) {
     if (localErrors.length === 0 && start > boundary) {
       localErrors.push({ field: 'memorized_start_page', message: 'أول صفحة يجب ألا تتجاوز حد الحفظ' });
     }
+    if (!Number.isFinite(dailyAmount) || dailyAmount < 0.1 || dailyAmount > 9999) {
+      localErrors.push({ field: 'daily_amount', message: 'الكمية يجب أن تكون بين 0.1 و9999' });
+    }
     if (localErrors.length > 0) {
+      updatePreview();
       return { localErrors };
     }
+
+    planTarget = { target_unit: targetUnit, daily_amount: dailyAmount };
 
     const payload = { memorized_start_page: start, current_boundary_page: boundary };
     if (note !== '') {
@@ -41,9 +91,41 @@ export function openEstablishSheet(onSuccess) {
     }
     return { payload };
   }, async () => {
+    // One smooth onboarding flow: range first, then the plan built on it.
+    let planCreated = false;
+    try {
+      await createPlan(planTarget);
+      planCreated = true;
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        navigate('/login');
+        return;
+      }
+    }
     await onSuccess();
-    notify.success('أُنشئ نطاق الحفظ');
+    notify.success(
+      planCreated
+        ? 'أُنشئ نطاق الحفظ وخطتك للمراجعة اليومية'
+        : 'أُنشئ نطاق الحفظ — تعذر إنشاء خطة المراجعة'
+    );
   }, 'تعذر إنشاء نطاق الحفظ');
+}
+
+/** The range mode picker: the current range, or a fresh start from page 1. */
+function wireRangeMode(form, onChange) {
+  const startInput = form.elements.memorized_start_page;
+  const boundaryInput = form.elements.current_boundary_page;
+
+  for (const radio of form.querySelectorAll('input[name="range_mode"]')) {
+    radio.addEventListener('change', () => {
+      if (!radio.checked || radio.value !== 'new') {
+        return;
+      }
+      startInput.value = '1';
+      boundaryInput.value = '1';
+      onChange();
+    });
+  }
 }
 
 /** Records pages memorized now; start pre-fills from the server's next page. */

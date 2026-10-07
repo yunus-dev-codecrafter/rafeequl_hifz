@@ -71,3 +71,16 @@
   padding: 0;
   min-inline-size: 0;
 }
+
+.form__fieldset legend {
+  padding: 0;
+}
+
+/* Grouped fields (range mode, daily target) keep a clear vertical rhythm. */
+.form__fieldset .form__label {
+  margin-block-start: var(--space-2);
+}
+
+.form__fieldset .form__check + .form__check {
+  margin-block-start: var(--space-1);
+}

@@ -1,7 +1,48 @@
+/* Cards: rounded 16px geometry, layered elevation, optional interactive lift. */
+
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-5) var(--space-4);
+  transition: box-shadow var(--transition-med), border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* Cards that navigate or toggle (activity tiles, stat chips) lift gently. */
+.card--interactive:hover,
+.card--interactive:focus-within {
+  border-color: var(--color-primary-soft);
+  box-shadow: var(--shadow-md);
+}
+
+.card--interactive:active {
   box-shadow: var(--shadow-sm);
-  padding: var(--space-4);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card--interactive:hover,
+  .card--interactive:focus-within {
+    transform: translateY(-2px);
+  }
+
+  .card--interactive:active {
+    transform: translateY(0);
+  }
+}
+
+/* Section header badge: a small pill that titles a card block. */
+.card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  align-self: flex-start;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.01em;
 }

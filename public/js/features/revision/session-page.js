@@ -3,6 +3,7 @@
 import { renderInto, qs, clear, setSlot, setSlotBdi, make, cloneTemplate } from '../../core/dom.js';
 import { ApiError } from '../../core/api-client.js';
 import { navigate } from '../../core/router.js';
+import { t } from '../../core/i18n.js';
 import { notify } from '../../components/notifications.js';
 import { openSheet } from '../../components/bottom-sheet.js';
 import { showFieldErrors, focusFirstInvalid } from '../../components/form-errors.js';
@@ -314,7 +315,11 @@ function renderSession(root, detail, session) {
   slot.appendChild(panel);
   let activeSession = session;
 
-  paintSession(panel, activeSession, segment);
+  // Issue 3B: errors flagged in this session, counted per page locally.
+  // The badge is presentation only — the card itself goes to the server.
+  const pageErrors = new Map();
+
+  paintSession(panel, activeSession, segment, pageErrors);
 
   const buttons = {
     next: qs('[data-action="next"]', panel),
@@ -337,17 +342,19 @@ function renderSession(root, detail, session) {
     } finally {
       isBusy = false;
       Object.values(buttons).forEach((button) => { button.disabled = false; });
-      paintSession(panel, activeSession, segment);
+      paintSession(panel, activeSession, segment, pageErrors);
     }
   };
 
+  // "Next" completes the current page: the progress call moves the pointer
+  // forward and the new page starts with a clean error badge.
   buttons.next.addEventListener('click', () => withBusy(async () => {
     if (activeSession.pages_completed >= activeSession.total_pages) {
       return;
     }
     const { session: updated } = await reportProgress(activeSession.id, activeSession.current_page);
     activeSession = updated;
-    paintSession(panel, activeSession, segment);
+    paintSession(panel, activeSession, segment, pageErrors);
   }));
 
   buttons.finish.addEventListener('click', () => withBusy(async () => {
@@ -370,16 +377,24 @@ function renderSession(root, detail, session) {
   });
 
   // Saving a card never touches session state — the sheet closes and the
-  // revision continues from exactly the same page.
+  // revision continues from exactly the same page. The only local effect is
+  // the per-page error badge next to the current page number (Issue 3B).
   buttons.flag.addEventListener('click', () => {
     if (isBusy) {
       return;
     }
-    openFlagSheet({ prefillPage: activeSession.current_page });
+    openFlagSheet({
+      prefillPage: activeSession.current_page,
+      onCreated: () => {
+        const page = Number(activeSession.current_page);
+        pageErrors.set(page, (pageErrors.get(page) ?? 0) + 1);
+        paintSession(panel, activeSession, segment, pageErrors);
+      },
+    });
   });
 }
 
-function paintSession(panel, session, segment) {
+function paintSession(panel, session, segment, pageErrors = new Map()) {
   setSlotBdi(panel, 'segment-label', `جدولة ${segment.segment_number} · صفحة ${segment.start_page}-${segment.end_page}`);
   setSlot(panel, 'current-page', String(session.current_page));
   setSlot(panel, 'start-page', String(segment.start_page));
@@ -387,6 +402,12 @@ function paintSession(panel, session, segment) {
   setSlotBdi(panel, 'completed', `${session.pages_completed} من ${session.total_pages}`);
   setSlot(panel, 'remaining', String(session.pages_remaining));
   setSlot(panel, 'percent', `${session.percent_complete}٪`);
+
+  // Inline badge for the errors flagged on the page currently on screen.
+  const errorCount = pageErrors.get(Number(session.current_page)) ?? 0;
+  const errorBadge = qs('[data-slot="page-errors"]', panel);
+  errorBadge.hidden = errorCount === 0;
+  errorBadge.textContent = errorCount === 0 ? '' : t('revision.errorsOnPage', { count: errorCount });
 
   updateProgressBar(qs('.progress-bar', panel), session.percent_complete);
 
