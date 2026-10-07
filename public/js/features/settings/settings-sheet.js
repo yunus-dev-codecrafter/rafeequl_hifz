@@ -212,10 +212,15 @@ export function openSettingsSheet(onPrefChange) {
     try {
       const settings = await updateSettings(patch);
       saveSnapshot(settings);
-    } catch {
+    } catch (error) {
       notify.error(
         isOffline() ? 'بلا اتصال — لم تُحفظ التغييرات على الحساب' : 'تعذر حفظ التغيير على الحساب'
       );
+      if (error instanceof ApiError && error.status === 401) {
+        sheet.close();
+        navigate('/login');
+        return;
+      }
       const restored = (await reconcileFromServer()) ?? (await restoreFromSnapshot());
       if (restored !== null) {
         revision = {

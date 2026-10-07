@@ -92,12 +92,20 @@ final class SettingsService
         }
 
         $row = $this->settings->findOrInit($userId);
+
+        // Fall back to the DB value only when the field was not in this patch.
+        // Guard against NULL DB values (rows created before the column existed)
+        // by using the schema defaults ('page' / 1.0) as a safe fallback.
         $unit = isset($fields['daily_revision_unit'])
             ? (string) $fields['daily_revision_unit']
-            : (string) $row['daily_revision_unit'];
+            : (isset($row['daily_revision_unit']) && $row['daily_revision_unit'] !== null && $row['daily_revision_unit'] !== ''
+                ? (string) $row['daily_revision_unit']
+                : 'page');
         $amount = isset($fields['daily_revision_amount'])
             ? (float) $fields['daily_revision_amount']
-            : (float) $row['daily_revision_amount'];
+            : (isset($row['daily_revision_amount']) && $row['daily_revision_amount'] !== null
+                ? (float) $row['daily_revision_amount']
+                : 1.0);
 
         if ($unit !== 'page' && ($amount < 1 || floor($amount) !== $amount)) {
             throw ValidationException::withErrors([

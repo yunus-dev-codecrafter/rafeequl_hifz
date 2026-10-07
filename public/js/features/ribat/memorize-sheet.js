@@ -92,22 +92,28 @@ export function openEstablishSheet(onSuccess) {
     return { payload };
   }, async () => {
     // One smooth onboarding flow: range first, then the plan built on it.
-    let planCreated = false;
+    // The range is already saved at this point; plan creation is best-effort
+    // but errors must be surfaced so the user knows what happened.
     try {
       await createPlan(planTarget);
-      planCreated = true;
+      await onSuccess();
+      notify.success('أُنشئ نطاق الحفظ وخطتك للمراجعة اليومية');
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         navigate('/login');
         return;
       }
+      // Range was saved; close the sheet and reload before showing the error
+      // so the UI reflects the new state even though the plan failed.
+      await onSuccess();
+      if (error instanceof ApiError && error.errors.length > 0) {
+        // Surface field-level validation messages from the server (e.g. bad
+        // target unit / amount combination).
+        notify.error(error.errors.map((e) => e.message).join(' — '));
+      } else {
+        notify.error('أُنشئ نطاق الحفظ — تعذر إنشاء خطة المراجعة');
+      }
     }
-    await onSuccess();
-    notify.success(
-      planCreated
-        ? 'أُنشئ نطاق الحفظ وخطتك للمراجعة اليومية'
-        : 'أُنشئ نطاق الحفظ — تعذر إنشاء خطة المراجعة'
-    );
   }, 'تعذر إنشاء نطاق الحفظ');
 }
 
